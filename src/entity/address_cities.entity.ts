@@ -1,15 +1,24 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { AddressArea } from './address_areas.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class AddressCities {
+export class AddressCity {
   @PrimaryGeneratedColumn()
   city_no: number;
 
-  @Column('varchar', { name: 'city_name', length: 30 })
+  @Column({
+    type: 'varchar',
+    length: 30,
+  })
   city_name: string;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
 
-  // 관계 설정
+  @OneToMany(() => AddressArea, (addressArea) => addressArea.area_city_no)
+  AddressAreas: AddressArea[];
 }

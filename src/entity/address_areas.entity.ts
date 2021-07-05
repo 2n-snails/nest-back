@@ -1,15 +1,27 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { AddressCity } from 'src/entity/address_cities.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
-export class AddressAreas {
+export class AddressArea {
   @PrimaryGeneratedColumn()
   area_no: number;
 
-  @Column('varchar', { name: 'area_name', length: 30 })
+  @Column({
+    type: 'varchar',
+    length: 30,
+  })
   area_name: string;
 
   @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
   deleted: string;
 
-  // 관계 설정
+  @ManyToOne(() => AddressCity)
+  @JoinColumn({ name: 'area_city_no' })
+  area_city_no: AddressCity;
 }
