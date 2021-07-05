@@ -8,20 +8,12 @@ import { ProductModule } from './product/product.module';
 import { UsersModule } from './users/users.module';
 import { MypageModule } from './mypage/mypage.module';
 import { AuthModule } from './auth/auth.module';
+import config from 'typeorm.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DATABASE,
-      entities: [],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(config),
     ProductModule,
     UsersModule,
     MypageModule,
