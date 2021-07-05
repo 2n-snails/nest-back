@@ -1,6 +1,6 @@
 import { ProductCategorys } from './entity/product_category.entity';
-import { AddressCities } from 'src/entity/address_cities.entity';
-import { AddressAreas } from './entity/address_areas.entity';
+import { AddressCity } from 'src/entity/address_city.entity';
+import { AddressArea } from './entity/address_area.entity';
 import { Users } from './entity/user.entity';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
@@ -28,19 +28,19 @@ import { Wishs } from './entity/wishs.entity';
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(config),
     TypeOrmModule.forFeature([
-      AddressAreas,
-      AddressCities,
-      Category,
-      Comments,
-      Deals,
-      Images,
-      Notices,
-      ProductCategorys,
-      Products,
-      ReComments,
-      Reviews,
-      Users,
-      Wishs,
+      AddressArea,
+      AddressCity,
+      // Category,
+      // Comments,
+      // Deals,
+      // Images,
+      // Notices,
+      // ProductCategorys,
+      // Products,
+      // ReComments,
+      // Reviews,
+      // Users,
+      // Wishs,
     ]),
     ProductModule,
     UsersModule,
