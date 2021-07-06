@@ -6,8 +6,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Comment } from './comment.entity';
 import { Deal } from './deal.entity';
 import { Notice } from './notice.entity';
+import { ReComment } from './recomment.entity';
 import { Review } from './review.entity';
 import { Wish } from './wish.entity';
 
@@ -71,4 +73,10 @@ export class User {
 
   @OneToMany(() => Wish, (wish) => wish.user)
   wishes: Wish[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+
+  @OneToMany(() => ReComment, (recomment) => recomment.user)
+  recomments: ReComment[];
 }

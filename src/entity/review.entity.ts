@@ -23,7 +23,7 @@ export class Review {
   review_score: number;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
     type: 'varchar',

@@ -5,6 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Comment } from './comment.entity';
 import { Image } from './image.entity';
 import { ProductCategory } from './product_category.entity';
 import { Wish } from './wish.entity';
@@ -30,7 +31,7 @@ export class Product {
   product_state: boolean;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
     type: 'varchar',
@@ -50,4 +51,7 @@ export class Product {
 
   @OneToMany(() => Wish, (wish) => wish.product)
   wishes: Wish[];
+
+  @OneToMany(() => Comment, (comment) => comment.product)
+  comments: Comment[];
 }

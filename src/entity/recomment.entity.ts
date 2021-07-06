@@ -2,22 +2,36 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Comment } from './comment.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class ReComment {
   @PrimaryGeneratedColumn()
   recomment_no: number;
 
-  @Column('varchar', { name: 'recomment_content', length: 200 })
+  @Column({ type: 'varchar', length: 200 })
   recomment_content: string;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @ManyToOne(() => Comment, (comment) => comment.recomments)
+  @JoinColumn({ name: 'recomment_comment_no' })
+  comment: Comment;
 
-  // 관계 설정
+  @ManyToOne(() => User, (user) => user.recomments)
+  @JoinColumn({ name: 'recomment_user_no' })
+  user: User;
 }
