@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Deal } from './deal.entity';
+import { Notice } from './notice.entity';
 
 @Entity()
 export class User {
@@ -56,4 +57,7 @@ export class User {
 
   @OneToMany(() => Deal, (deal) => deal.user)
   deals: Deal[];
+
+  @OneToMany(() => Notice, (notice) => notice.user)
+  notices: Notice[];
 }
