@@ -6,7 +6,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class ReComments {
+export class ReComment {
   @PrimaryGeneratedColumn()
   recomment_no: number;
 

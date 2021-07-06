@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Comments {
+export class Comment {
   @PrimaryGeneratedColumn()
   comment_no: number;
 
