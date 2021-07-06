@@ -4,8 +4,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Deal } from './deal.entity';
 
 @Entity()
 export class AddressArea {
@@ -18,10 +20,17 @@ export class AddressArea {
   })
   area_name: string;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
 
-  @ManyToOne(() => AddressCity)
+  @ManyToOne(() => AddressCity, (addressCity) => addressCity.addressAreas)
   @JoinColumn({ name: 'area_city_no' })
-  area_city_no: AddressCity;
+  addressCity: AddressCity;
+
+  @OneToMany(() => Deal, (deal) => deal.addressArea)
+  deals: Deal[];
 }
