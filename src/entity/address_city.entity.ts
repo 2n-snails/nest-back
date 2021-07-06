@@ -19,6 +19,6 @@ export class AddressCity {
   })
   deleted: string;
 
-  @OneToMany(() => AddressArea, (addressArea) => addressArea.area_city_no)
-  AddressAreas: AddressArea[];
+  @OneToMany(() => AddressArea, (addressArea) => addressArea.addressCity)
+  addressAreas: AddressArea[];
 }
