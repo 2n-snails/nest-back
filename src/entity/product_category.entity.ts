@@ -1,10 +1,18 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from './category.entity';
 
 @Entity()
 export class ProductCategory {
   @PrimaryGeneratedColumn()
   product_category_no: number;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
+
+  @ManyToOne(() => Category, (category) => category.productCategories)
+  category: Category;
 }
