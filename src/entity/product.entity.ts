@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Image } from './image.entity';
+import { ProductCategory } from './product_category.entity';
 
 @Entity()
 export class Product {
@@ -39,4 +40,10 @@ export class Product {
 
   @OneToMany(() => Image, (image) => image.product)
   images: Image[];
+
+  @OneToMany(
+    () => ProductCategory,
+    (productCategory) => productCategory.product,
+  )
+  productCategories: ProductCategory[];
 }
