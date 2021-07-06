@@ -1,12 +1,30 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Product } from './product.entity';
+import { User } from './user.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity()
 export class Wish {
   @PrimaryGeneratedColumn()
   wish_no: number;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
 
-  // 관계 설정
+  @ManyToOne(() => User, (user) => user.wishes)
+  @JoinColumn({ name: 'wish_user_no' })
+  user: User;
+
+  @ManyToOne(() => Product, (product) => product.wishes)
+  @JoinColumn({ name: 'wish_product_no' })
+  product: Product;
 }

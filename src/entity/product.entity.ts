@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Image } from './image.entity';
 import { ProductCategory } from './product_category.entity';
+import { Wish } from './wish.entity';
 
 @Entity()
 export class Product {
@@ -46,4 +47,7 @@ export class Product {
     (productCategory) => productCategory.product,
   )
   productCategories: ProductCategory[];
+
+  @OneToMany(() => Wish, (wish) => wish.product)
+  wishes: Wish[];
 }

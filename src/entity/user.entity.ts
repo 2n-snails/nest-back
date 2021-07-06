@@ -9,6 +9,7 @@ import {
 import { Deal } from './deal.entity';
 import { Notice } from './notice.entity';
 import { Review } from './review.entity';
+import { Wish } from './wish.entity';
 
 @Entity()
 export class User {
@@ -67,4 +68,7 @@ export class User {
 
   // @OneToMany(() => Review, (review) => review.user)
   // reviews: Review[];
+
+  @OneToMany(() => Wish, (wish) => wish.user)
+  wishes: Wish[];
 }
