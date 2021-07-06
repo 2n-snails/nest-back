@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Deal } from './deal.entity';
 import { Notice } from './notice.entity';
+import { Review } from './review.entity';
 
 @Entity()
 export class User {
@@ -60,4 +61,10 @@ export class User {
 
   @OneToMany(() => Notice, (notice) => notice.user)
   notices: Notice[];
+
+  // @OneToMany(() => Review, (review) => review.user)
+  // reviews: Review[];
+
+  // @OneToMany(() => Review, (review) => review.user)
+  // reviews: Review[];
 }

@@ -2,28 +2,41 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
 export class Review {
   @PrimaryGeneratedColumn()
   review_no: number;
 
-  @Column('varchar', { name: 'review-content', length: 100 })
+  @Column({ type: 'varchar', length: 100 })
   review_content: string;
 
-  @Column('varchar', { name: 'review_image', nullable: true, default: 'none' })
+  @Column({ type: 'varchar', length: 100, default: 'none' })
   review_image: string;
 
-  @Column('number', { name: 'review_score' })
+  @Column({ type: 'integer' })
   review_score: number;
-
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
-  deleted: string;
 
   @CreateDateColumn()
   created_at: Date;
 
-  // 관계 설정
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
+  deleted: string;
+
+  // @ManyToOne(() => User, (user) => user.reviews)
+  // @JoinColumn({ name: 'review_reciver_user_no' })
+  // reciver: User;
+
+  // @ManyToOne(() => User, (user) => user.reviews)
+  // @JoinColumn({ name: 'review_user_no' })
+  // reviewer: User;
 }
