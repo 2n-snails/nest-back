@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { AddressArea } from './address_area.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Deal {
@@ -12,4 +20,11 @@ export class Deal {
   })
   deleted: string;
 
+  @ManyToOne(() => AddressArea, (addressArea) => addressArea.deals)
+  @JoinColumn({ name: 'deal_area_no' })
+  addressArea: AddressArea;
+
+  @ManyToOne(() => User, (user) => user.deals)
+  @JoinColumn({ name: 'deal_user_no' })
+  user: User;
 }
