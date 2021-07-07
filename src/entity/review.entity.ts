@@ -36,7 +36,7 @@ export class Review {
   @JoinColumn({ name: 'review_writer_user_no' })
   writer: User;
 
-  @ManyToOne(() => User, (user) => user.review_reciver)
-  @JoinColumn({ name: 'review_reciver_user_no' })
-  reciver: User;
+  @ManyToOne(() => User, (user) => user.review_receiver)
+  @JoinColumn({ name: 'review_receiver_user_no' })
+  receiver: User;
 }

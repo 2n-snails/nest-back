@@ -65,14 +65,14 @@ export class User {
   @OneToMany(() => Notice, (notice) => notice.writer)
   notices_writer: Notice[];
 
-  @OneToMany(() => Notice, (notice) => notice.reciver)
-  notices_reciver: Notice[];
+  @OneToMany(() => Notice, (notice) => notice.receiver)
+  notices_receiver: Notice[];
 
   @OneToMany(() => Review, (review) => review.writer)
   review_writer: Review[];
 
-  @OneToMany(() => Review, (review) => review.reciver)
-  review_reciver: Review[];
+  @OneToMany(() => Review, (review) => review.receiver)
+  review_receiver: Review[];
 
   @OneToMany(() => Wish, (wish) => wish.user)
   wishes: Wish[];

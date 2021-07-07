@@ -32,7 +32,7 @@ export class Notice {
   @JoinColumn({ name: 'notice_writer_user_no' })
   writer: User;
 
-  @ManyToOne(() => User, (user) => user.notices_reciver)
+  @ManyToOne(() => User, (user) => user.notices_receiver)
   @JoinColumn({ name: 'notice_receiver_user_no' })
-  reciver: User;
+  receiver: User;
 }
