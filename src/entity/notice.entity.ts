@@ -28,7 +28,11 @@ export class Notice {
   })
   deleted: string;
 
-  @ManyToOne(() => User, (user) => user.notices)
+  @ManyToOne(() => User, (user) => user.notices_writer)
   @JoinColumn({ name: 'notice_receiver_user_no' })
-  user: User;
+  writer: User;
+
+  @ManyToOne(() => User, (user) => user.notices_reciver)
+  @JoinColumn({ name: 'notice_receiver_user_no' })
+  reciver: User;
 }

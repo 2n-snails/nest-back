@@ -62,14 +62,17 @@ export class User {
   @OneToMany(() => Deal, (deal) => deal.user)
   deals: Deal[];
 
-  @OneToMany(() => Notice, (notice) => notice.user)
-  notices: Notice[];
+  @OneToMany(() => Notice, (notice) => notice.writer)
+  notices_writer: Notice[];
 
-  // @OneToMany(() => Review, (review) => review.user)
-  // reviews: Review[];
+  @OneToMany(() => Notice, (notice) => notice.reciver)
+  notices_reciver: Notice[];
 
-  // @OneToMany(() => Review, (review) => review.user)
-  // reviews: Review[];
+  @OneToMany(() => Review, (review) => review.writer)
+  review_writer: Review[];
+
+  @OneToMany(() => Review, (review) => review.reciver)
+  review_reciver: Review[];
 
   @OneToMany(() => Wish, (wish) => wish.user)
   wishes: Wish[];

@@ -32,11 +32,11 @@ export class Review {
   })
   deleted: string;
 
-  // @ManyToOne(() => User, (user) => user.reviews)
-  // @JoinColumn({ name: 'review_reciver_user_no' })
-  // reciver: User;
+  @ManyToOne(() => User, (user) => user.review_writer)
+  @JoinColumn({ name: 'review_writer_user_no' })
+  writer: User;
 
-  // @ManyToOne(() => User, (user) => user.reviews)
-  // @JoinColumn({ name: 'review_user_no' })
-  // reviewer: User;
+  @ManyToOne(() => User, (user) => user.review_reciver)
+  @JoinColumn({ name: 'review_reciver_user_no' })
+  reciver: User;
 }
