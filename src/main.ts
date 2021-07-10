@@ -9,8 +9,8 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
 
   const config = new DocumentBuilder()
-    .setTitle('Test API')
-    .setDescription('Test API document')
+    .setTitle('Shoppingmall API')
+    .setDescription('Shoppingmall REST API')
     .setVersion('1.0')
     .addTag('cats')
     .build();

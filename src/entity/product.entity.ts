@@ -2,34 +2,56 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Comment } from './comment.entity';
+import { Image } from './image.entity';
+import { ProductCategory } from './product_category.entity';
+import { Wish } from './wish.entity';
 
 @Entity()
-export class Products {
+export class Product {
   @PrimaryGeneratedColumn()
   product_no: number;
 
-  @Column('varchar', { name: 'product_title', length: 50 })
+  @Column({ type: 'varchar', length: 50 })
   product_title: string;
 
-  @Column('varchar', { name: 'product_content', length: 200 })
+  @Column({ type: 'varchar', length: 200 })
   product_content: string;
 
-  @Column('varchar', { name: 'product_price', length: 25 })
+  @Column({ type: 'varchar', length: 25 })
   product_price: string;
 
-  @Column('number', { name: 'product_view', default: 0 })
+  @Column({ type: 'integer', default: 0 })
   product_view: number;
 
-  @Column('boolean', { name: 'product_state', default: false })
+  @Column({ type: 'boolean', default: false })
   product_state: boolean;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @OneToMany(() => Image, (image) => image.product)
+  images: Image[];
 
-  // 관계 설정
+  @OneToMany(
+    () => ProductCategory,
+    (productCategory) => productCategory.product,
+  )
+  productCategories: ProductCategory[];
+
+  @OneToMany(() => Wish, (wish) => wish.product)
+  wishes: Wish[];
+
+  @OneToMany(() => Comment, (comment) => comment.product)
+  comments: Comment[];
 }

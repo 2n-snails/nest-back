@@ -1,4 +1,5 @@
 import { Product } from './product.entity';
+import { User } from './user.entity';
 import {
   Column,
   Entity,
@@ -8,15 +9,9 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Image {
+export class Wish {
   @PrimaryGeneratedColumn()
-  image_no: number;
-
-  @Column({ type: 'varchar', length: 250 })
-  image_src: string;
-
-  @Column({ type: 'integer' })
-  image_order: number;
+  wish_no: number;
 
   @Column({
     type: 'varchar',
@@ -25,7 +20,11 @@ export class Image {
   })
   deleted: string;
 
-  @ManyToOne(() => Product, (product) => product.images)
-  @JoinColumn({ name: 'image_product_no' })
+  @ManyToOne(() => User, (user) => user.wishes)
+  @JoinColumn({ name: 'wish_user_no' })
+  user: User;
+
+  @ManyToOne(() => Product, (product) => product.wishes)
+  @JoinColumn({ name: 'wish_product_no' })
   product: Product;
 }

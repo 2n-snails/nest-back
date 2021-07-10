@@ -1,18 +1,38 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
-export class Notices {
+export class Notice {
   @PrimaryGeneratedColumn()
   notice_no: number;
 
-  @Column('varchar', { name: 'notice_type', length: 30 })
+  @Column({ type: 'integer' })
+  notice_writer_user_no: number;
+
+  @Column({ type: 'varchar', length: 30 })
   notice_type: string;
 
-  @Column('number', { name: 'notice_target_no' })
+  @Column({ type: 'integer' })
   notice_target_no: number;
 
-  @Column('varchar', { name: 'deleted', length: 15, default: 'N' })
+  @Column({
+    type: 'varchar',
+    length: 15,
+    default: 'N',
+  })
   deleted: string;
 
-  // 관계 설정
+  @ManyToOne(() => User, (user) => user.notices_writer)
+  @JoinColumn({ name: 'notice_writer_user_no' })
+  writer: User;
+
+  @ManyToOne(() => User, (user) => user.notices_receiver)
+  @JoinColumn({ name: 'notice_receiver_user_no' })
+  receiver: User;
 }
