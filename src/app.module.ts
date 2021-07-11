@@ -12,7 +12,6 @@ import { ProductModule } from './product/product.module';
 import { UsersModule } from './users/users.module';
 import { MypageModule } from './mypage/mypage.module';
 import { AuthModule } from './auth/auth.module';
-import config from 'typeorm.config';
 import { Category } from './entity/category.entity';
 import { Comment } from './entity/comment.entity';
 import { Deal } from './entity/deal.entity';
@@ -25,8 +24,31 @@ import { Wish } from './entity/wish.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot(config),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath:
+        process.env.NODE_ENV === 'development'
+          ? '.env.development'
+          : '.env.test',
+      // production 환경일 때는 configModule이 환경변수 파일을 무시한다.
+      // prod할 때는 따로 넣기로 하자.
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: ['dist/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/src/migrations/*.ts'],
+      cli: { migrationsDir: 'src/migrations' },
+      autoLoadEntities: true,
+      synchronize: true,
+      logging: true,
+      keepConnectionAlive: true,
+    }),
     TypeOrmModule.forFeature([
       AddressArea,
       AddressCity,
