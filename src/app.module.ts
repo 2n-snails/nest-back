@@ -40,7 +40,7 @@ import { Wish } from './entity/wish.entity';
       Wish,
       Comment,
       ReComment,
-      // Review,
+      Review,
     ]),
     ProductModule,
     UsersModule,
