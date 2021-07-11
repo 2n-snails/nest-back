@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch } from '@nestjs/common';
+import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 
 @Controller('mypage')
 export class MypageController {
@@ -24,6 +24,12 @@ export class MypageController {
   @Get('my-info/:user-id')
   myInfo() {
     return 'my info';
+  }
+
+  // 리뷰 작성하기
+  @Post('review-write/:user-id')
+  writeReview() {
+    return 'write review';
   }
 
   // 프로필 사진 변경

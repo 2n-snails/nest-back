@@ -38,6 +38,7 @@ export class ProductController {
     return 'declare a product';
   }
 
+  // 찜하기
   @Post(':product-id/wish')
   wishProduct() {
     return 'wish product';
