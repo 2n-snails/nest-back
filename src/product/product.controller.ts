@@ -3,7 +3,7 @@ import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
 @Controller('product')
 export class ProductController {
   // 상품 업로드
-  @Post()
+  @Post('upload')
   productUpload() {
     return 'product upload';
   }
