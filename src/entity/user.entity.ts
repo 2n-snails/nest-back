@@ -30,7 +30,7 @@ export class User {
   user_tel: string;
 
   @Column({ type: 'smallint', default: 10 })
-  user_level: string;
+  user_level: number;
 
   @Column({ type: 'varchar', length: 100, default: 'none' })
   user_profile_image: string;
