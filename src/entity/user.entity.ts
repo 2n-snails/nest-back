@@ -1,3 +1,4 @@
+import { Product } from './product.entity';
 import {
   Column,
   CreateDateColumn,
@@ -82,4 +83,7 @@ export class User {
 
   @OneToMany(() => ReComment, (recomment) => recomment.user)
   recomments: ReComment[];
+
+  @OneToMany(() => Product, (product) => product.user)
+  products: Product[];
 }

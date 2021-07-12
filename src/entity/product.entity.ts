@@ -2,12 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Comment } from './comment.entity';
 import { Image } from './image.entity';
 import { ProductCategory } from './product_category.entity';
+import { User } from './user.entity';
 import { Wish } from './wish.entity';
 
 @Entity()
@@ -54,4 +57,8 @@ export class Product {
 
   @OneToMany(() => Comment, (comment) => comment.product)
   comments: Comment[];
+
+  @ManyToOne(() => User, (user) => user.products)
+  @JoinColumn({ name: 'product_user_no' })
+  user: User;
 }
