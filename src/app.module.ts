@@ -45,7 +45,7 @@ import { Wish } from './entity/wish.entity';
       migrations: [__dirname + '/src/migrations/*.ts'],
       cli: { migrationsDir: 'src/migrations' },
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
       logging: true,
       keepConnectionAlive: true,
     }),
