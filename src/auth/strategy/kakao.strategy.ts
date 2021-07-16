@@ -24,8 +24,8 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
       const user = await this.authService.validateUser(user_email);
       if (!user) {
         // 데이터베이스에 해당 유저의 정보가 없을 때
-        const kakaoUserData = { user_email, profile_image, nickname };
-        done(null, { kakaoUserData, loginsuccess: false });
+        const userData = { type: 'kakao', user_email, profile_image, nickname };
+        done(null, { userData, loginsuccess: false });
       } else {
         // 해당 유저의 정보가 있을 때
         done(null, { user, loginsuccess: true });
