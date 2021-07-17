@@ -10,7 +10,7 @@ export class UsersService {
       .select('user')
       .from(User, 'user')
       .where('user.user_email = :user_email', { user_email })
-      .execute();
+      .getOne();
     return user;
   }
 }

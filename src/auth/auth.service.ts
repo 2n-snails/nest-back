@@ -9,9 +9,9 @@ export class AuthService {
     const user = await this.usersService.findOne(user_email);
     if (user) {
       // 유저가 있으면 로그인 성공: jwt 토큰 발급
-      return '성공!';
+      return user;
     }
     // 유저가 없으면 추가정보 필요: 프론트로 1회용 jwt 토큰 발급
-    return '실패!';
+    return null;
   }
 }

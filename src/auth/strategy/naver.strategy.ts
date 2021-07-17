@@ -1,6 +1,6 @@
 import { Strategy } from 'passport-naver';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -19,8 +19,14 @@ export class NaverStrategy extends PassportStrategy(Strategy) {
     profile: any,
     done: any,
   ): Promise<any> {
-    const user = profile;
+    const user_email = profile._json.email;
+    const user_nick = profile._json.nickname;
+    const user_provider = profile.provider;
+    const user = await this.authService.validateUser(user_email);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
 
-    done(null, user);
+    return user;
   }
 }

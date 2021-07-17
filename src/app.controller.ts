@@ -19,9 +19,10 @@ export class AppController {
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver')
   async login() {
-    return 'hi 로그인';
+    return;
   }
 
+  @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
   async callback(): Promise<any> {
     return;
