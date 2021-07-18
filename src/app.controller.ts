@@ -1,10 +1,11 @@
+import { AuthService } from './auth/auth.service';
 import { NaverAuthGuard } from './auth/guard/naver-auth.guard';
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+// import { AppService } from './app.service';
 
 @Controller('api/v1')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Get('main')
   mainPageData() {
@@ -24,7 +25,10 @@ export class AppController {
 
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
-  async callback(): Promise<any> {
+  async callback(@Request() req): Promise<any> {
+    // 최종적으로 프론트로 보내주는 부분
+    // return req.user;
+    // return this.authService.login(req.user);
     return;
   }
 }

@@ -4,7 +4,7 @@ import { getConnection } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  async findOne(user_email: any): Promise<User | undefined> {
+  async findOne(user_email: string): Promise<User | undefined> {
     const user = await getConnection()
       .createQueryBuilder()
       .select('user')
