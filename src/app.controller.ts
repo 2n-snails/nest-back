@@ -27,14 +27,7 @@ export class AppController {
   @Get('auth/naver/callback')
   async callback(@Request() req): Promise<any> {
     // 최종적으로 프론트로 보내주는 부분
-    // return req.user;
+    return req.user;
     // return this.authService.login(req.user);
-    if (req.user) {
-      console.log('유저가 있어요');
-      return req.user;
-    } else {
-      console.log('유저가 없어요');
-      return 'hi';
-    }
   }
 }
