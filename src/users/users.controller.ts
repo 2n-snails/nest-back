@@ -10,6 +10,6 @@ export class UsersController {
   }
   @Get('findOne')
   findOne() {
-    return this.userService.findOne('gangsuyun6@gmail.com');
+    return this.userService.findUserByEmail('gangsuyun6@gmail.com');
   }
 }
