@@ -32,12 +32,14 @@ export class NaverStrategy extends PassportStrategy(Strategy) {
     if (user === null) {
       // 유저가 없을때
       // 여기서 토큰 발급
+      console.log('일회용 토큰 발급');
+
       return this.authService.onceToken(user_profile);
     }
+
     // 유저가 있을때
     // 여기서 토큰 발급
-    console.log('유저가 있어요');
-    done(null, user);
-    return;
+    console.log('로그인 토큰 발급');
+    return this.authService.loginToken(user);
   }
 }

@@ -27,7 +27,10 @@ export class AuthService {
       user_nick: user.user_nick,
     };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '60M',
+      }),
     };
   }
 
