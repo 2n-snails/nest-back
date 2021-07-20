@@ -15,7 +15,6 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60m' },
     }),
   ],
   providers: [AuthService, NaverStrategy, JwtStrategy],

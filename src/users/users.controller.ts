@@ -17,9 +17,7 @@ export class UsersController {
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
   async callback(@Req() req, @Res() res: Response): Promise<any> {
-    // 최종적으로 프론트로 보내주는 부분
-
-    res.header('jwtToken', req.user.access_token);
+    res.header('jwt_token', req.user.access_token);
     res.send('OK');
     res.end();
   }
@@ -27,13 +25,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('auth/test')
   test(@Request() req) {
-    console.log(req);
-
     return req.user;
   }
-  // @Post('auth/login')
-  // userLogin(@Req req: ) {
-
-  //   // 타입ORM
-  // }
 }

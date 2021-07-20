@@ -30,6 +30,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET,
         expiresIn: '50m',
       }),
     };
@@ -45,6 +46,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET,
         expiresIn: '10m',
       }),
     };
