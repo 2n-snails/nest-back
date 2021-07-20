@@ -9,13 +9,16 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 @Module({
   imports: [
     forwardRef(() => UsersModule),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({
+      defaultStrategy: 'jwt',
+      session: false,
+    }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '60m' },
     }),
   ],
   providers: [AuthService, NaverStrategy, JwtStrategy],
-  exports: [AuthService, JwtModule],
+  exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}
