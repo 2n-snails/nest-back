@@ -20,6 +20,8 @@ export class UsersController {
     res.header('jwt_token', req.user.access_token);
     res.send('OK');
     res.end();
+    // 리다이렉트 해주는 페이지
+    // res.redirect('http://localhost:3000/login');
   }
 
   @UseGuards(JwtAuthGuard)
