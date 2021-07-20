@@ -25,27 +25,29 @@ export class AuthService {
       user_level: user.user_level,
       user_profile_image: user.user_profile_image,
       user_nick: user.user_nick,
+      user_token: 'loginToken',
     };
+
     return {
       access_token: this.jwtService.sign(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '60M',
+        expiresIn: '50m',
       }),
     };
   }
 
   onceToken(user_profile: any) {
-    console.log(user_profile);
     const payload = {
       user_email: user_profile.user_email,
       user_nick: user_profile.user_nick,
       user_provider: user_profile.user_provider,
+      user_token: 'onceToken',
     };
 
     return {
       access_token: this.jwtService.sign(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '10M',
+        expiresIn: '10m',
       }),
     };
   }
