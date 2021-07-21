@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { NaverStrategy } from './strategy/naver.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { KakaoStrategy } from 'src/auth/strategy/kakao.strategy';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
       secret: process.env.JWT_SECRET,
     }),
   ],
-  providers: [AuthService, NaverStrategy, JwtStrategy],
+  providers: [AuthService, NaverStrategy, JwtStrategy, KakaoStrategy],
   exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller()
+@Controller('api/v1')
 export class AppController {
   @Get('main')
   mainPageData() {
