@@ -13,4 +13,14 @@ export class UsersService {
       .getOne();
     return user;
   }
+
+  async findUserById(user_no: number): Promise<User | undefined> {
+    const user = await getConnection()
+      .createQueryBuilder()
+      .select('user')
+      .from(User, 'user')
+      .where('user.user_no = :user_no', { user_no })
+      .getOne();
+    return user;
+  }
 }
