@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/entity/user.entity';
 import { UsersService } from 'src/users/users.service';
+import CryptoJS from 'crypto-js';
 
 @Injectable()
 export class AuthService {
@@ -18,22 +19,34 @@ export class AuthService {
     return user;
   }
 
-  async loginToken(user: User) {
+  async createLoginToken(user: User) {
     const payload = {
       user_no: user.user_no,
-      user_email: user.user_email,
-      user_level: user.user_level,
-      user_profile_image: user.user_profile_image,
-      user_nick: user.user_nick,
       user_token: 'loginToken',
     };
 
-    return {
-      access_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_SECRET,
-        expiresIn: '50m',
-      }),
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '30s',
+    });
+  }
+
+  async createRefreshToken(user: User) {
+    const payload = {
+      user_no: user.user_no,
+      user_token: 'loginToken',
     };
+
+    const token = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '50m',
+    });
+    const refresh_token = CryptoJS.AES.encrypt(
+      JSON.stringify(token),
+      process.env.AES_KEY,
+    ).toString();
+
+    return refresh_token;
   }
 
   onceToken(user_profile: any) {
