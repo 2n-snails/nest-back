@@ -8,7 +8,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
-import CryptoJS from 'crypto-js';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -31,7 +30,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const token = authorization.replace('Bearer ', '');
     request.user = await this.validate(token);
-    response.setHeader('a', 'a');
     return true;
   }
 
