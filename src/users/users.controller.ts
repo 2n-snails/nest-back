@@ -37,7 +37,8 @@ export class UsersController {
   @UseGuards(KakaoAuthGuard)
   @Get('auth/kakao/callback')
   async kakaocallback(@Req() req, @Res() res: Response) {
-    res.header('jwt_token', req.user.access_token);
+    res.header('access_token', req.user.access_token);
+    res.header('refresh_token', req.user.refresh_token);
     res.send('OK');
     res.end();
   }
@@ -68,7 +69,7 @@ export class UsersController {
         })
         .execute();
       const user = await this.authService.validateUser(user_email);
-      return this.authService.loginToken(user);
+      return this.authService.createLoginToken(user);
     }
     // 그 외의 경우
     return false;
