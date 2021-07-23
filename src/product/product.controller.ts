@@ -6,7 +6,12 @@ import {
   InternalServerErrorException,
   Post,
   Put,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
+import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreatedProdutcDTO } from './dto/createProduct.dto';
 import { ProductService } from './product.service';
 
@@ -14,10 +19,12 @@ import { ProductService } from './product.service';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   // 상품 업로드
+  @Roles(userLevel.MEMBER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
-  async productUpload(@Body() data: CreatedProdutcDTO) {
-    console.log(data);
-    const result = await this.productService.createProduct(data);
+  async productUpload(@Body() data: CreatedProdutcDTO, @Req() req) {
+    const user = req.user;
+    const result = await this.productService.createProduct(data, user);
     if (result) {
       return { suceess: true, message: 'Product Upload Success' };
     } else {

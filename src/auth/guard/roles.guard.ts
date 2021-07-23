@@ -20,23 +20,11 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    const levelType = JSON.stringify(level);
-
-    if (levelType === '[0]' || levelType === '[100]') {
-      const roleCheck = level.indexOf(user.user_level);
-      if (roleCheck !== -1) {
-        return true;
-      } else {
-        return false;
-      }
+    const roleCheck = level.indexOf(user.user_level);
+    if (roleCheck !== -1) {
+      return true;
     } else {
-      const newlevel = level.reduce((key, value) => key.concat(value), []);
-      const roleCheck = newlevel.indexOf(user.user_level);
-      if (roleCheck !== -1) {
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
   }
 }

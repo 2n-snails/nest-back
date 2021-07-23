@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 export const userLevel = {
   ADMIN: 100,
   GHOST: 0,
-  MEMBER: [10, 9, 8],
+  MEMBER: 10,
 } as const;
 
 type userLevel = typeof userLevel[keyof typeof userLevel];

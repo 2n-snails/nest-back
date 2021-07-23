@@ -21,7 +21,7 @@ export class ProductService {
     private readonly connection: Connection,
   ) {}
 
-  async createProduct(data: CreatedProdutcDTO): Promise<boolean> {
+  async createProduct(data: CreatedProdutcDTO, user): Promise<boolean> {
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -35,6 +35,7 @@ export class ProductService {
         product_content,
         product_price,
       });
+      product.user = user;
       await queryRunner.manager.save(product);
 
       // 상품 이미지 업로드
