@@ -30,6 +30,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const token = authorization.replace('Bearer ', '');
     request.user = await this.validate(token);
+    response.setHeader('a', 'a');
     return true;
   }
 
