@@ -75,7 +75,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           };
         }
       } else {
-        return token_verify;
+        console.log('남은 시간 5분이상');
+        if (token_verify.user_token === 'loginToken') {
+          return await this.userService.findUserById(token_verify.user_no);
+        } else {
+          return token_verify;
+        }
       }
     } catch (error) {
       switch (error.message) {
