@@ -1,7 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
 
-@Controller('api/v1')
+@Controller()
 export class AppController {
+  @UseGuards(JwtAuthGuard)
   @Get('main')
   mainPageData() {
     return 'Main Page Router';
