@@ -1,17 +1,19 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { ProductService } from './product.service';
+import { Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 
 @Controller('product')
 export class ProductController {
+  constructor(private productService: ProductService) {}
   // 상품 업로드
   @Post('upload')
-  productUpload() {
+  productUpload(): string {
     return 'product upload';
   }
 
   // 상품 상세 정보
-  @Get(':product-id')
-  productInfo() {
-    return 'product info';
+  @Get(':product_id')
+  productInfo(@Param() params) {
+    return this.productService.getOne(params.product_id);
   }
 
   // 추천 상품
