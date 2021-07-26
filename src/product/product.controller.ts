@@ -1,11 +1,35 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  InternalServerErrorException,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { CreatedProductDTO } from './dto/createProduct.dto';
+import { ProductService } from './product.service';
 
 @Controller('product')
 export class ProductController {
+  constructor(private readonly productService: ProductService) {}
   // 상품 업로드
+  @Roles(userLevel.MEMBER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
-  productUpload() {
-    return 'product upload';
+  async productUpload(@Body() data: CreatedProductDTO, @Req() req) {
+    const user = req.user;
+    const result = await this.productService.createProduct(data, user);
+    if (result) {
+      return { suceess: true, message: 'Product Upload Success' };
+    } else {
+      throw new InternalServerErrorException();
+    }
   }
 
   // 상품 상세 정보
