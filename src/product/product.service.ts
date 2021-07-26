@@ -57,8 +57,9 @@ export class ProductService {
         'recommentWriter.user_profile_image',
         'recommentWriter.user_nick',
       ])
-      // .addSelect('COUNT(wish.wish_no)', 'countWish')
-      // .groupBy('p.product_no')
+      .loadRelationCountAndMap('p.wishCount', 'p.wishes', 'wishCount', (qb) =>
+        qb.where('wishCount.deleted = :value', { value: 'N' }),
+      )
       .where('p.product_no = :product_no', { product_no })
       .getMany();
     return product;
