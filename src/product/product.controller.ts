@@ -4,15 +4,16 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  Param,
   Post,
   Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreatedProductDTO } from './dto/createProduct.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 
 @Controller('product')
@@ -45,9 +46,26 @@ export class ProductController {
   }
 
   // 상품 댓글 작성
-  @Post(':product-id/comment')
-  writeComment() {
-    return 'write Comment';
+  @UseGuards(JwtAuthGuard)
+  @Post(':product_id/comment')
+  async writeComment(
+    @Req() req,
+    @Body() data,
+    @Param('product_id') id: number,
+  ) {
+    const user = req.user;
+    const product = await this.productService.findProductById(id);
+    if (!product) {
+      return {
+        message: 'This product does not exist',
+        success: false,
+      };
+    }
+    const result = await this.productService.createComment(user, data, product);
+    if (result) {
+      return { success: true, message: 'Comment successful' };
+    }
+    throw new InternalServerErrorException();
   }
 
   // 대댓글 작성

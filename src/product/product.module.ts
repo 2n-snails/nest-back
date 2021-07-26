@@ -6,10 +6,17 @@ import { Product } from 'src/entity/product.entity';
 import { Image } from 'src/entity/image.entity';
 import { Category } from 'src/entity/category.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
+import { Comment } from 'src/entity/comment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, Image, Category, ProductCategory]),
+    TypeOrmModule.forFeature([
+      Product,
+      Comment,
+      Image,
+      Category,
+      ProductCategory,
+    ]),
   ],
   providers: [ProductService],
   controllers: [ProductController],
