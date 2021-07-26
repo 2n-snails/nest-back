@@ -13,7 +13,7 @@ export class ProductController {
   // 상품 상세 정보
   @Get(':product_id')
   productInfo(@Param() params) {
-    return this.productService.getOne(params.product_id);
+    return this.productService.findOne(params.product_id);
   }
 
   // 추천 상품
