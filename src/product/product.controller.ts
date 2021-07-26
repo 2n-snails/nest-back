@@ -12,7 +12,7 @@ import {
 import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { CreatedProdutcDTO } from './dto/createProduct.dto';
+import { CreatedProductDTO } from './dto/createProduct.dto';
 import { ProductService } from './product.service';
 
 @Controller('product')
@@ -22,7 +22,7 @@ export class ProductController {
   @Roles(userLevel.MEMBER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
-  async productUpload(@Body() data: CreatedProdutcDTO, @Req() req) {
+  async productUpload(@Body() data: CreatedProductDTO, @Req() req) {
     const user = req.user;
     const result = await this.productService.createProduct(data, user);
     if (result) {

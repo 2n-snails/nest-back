@@ -5,7 +5,7 @@ import { Image } from 'src/entity/image.entity';
 import { Product } from 'src/entity/product.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
 import { Connection, Like, Repository } from 'typeorm';
-import { CreatedProdutcDTO } from './dto/createProduct.dto';
+import { CreatedProductDTO } from './dto/createProduct.dto';
 
 @Injectable()
 export class ProductService {
@@ -21,7 +21,7 @@ export class ProductService {
     private readonly connection: Connection,
   ) {}
 
-  async createProduct(data: CreatedProdutcDTO, user): Promise<boolean> {
+  async createProduct(data: CreatedProductDTO, user): Promise<boolean> {
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();

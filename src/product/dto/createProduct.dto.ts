@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { Product } from 'src/entity/product.entity';
 
-export class CreatedProdutcDTO extends Product {
+export class CreatedProductDTO extends Product {
   @IsString()
   @MaxLength(50, {
     message: 'The maximum length of the title is 50',
