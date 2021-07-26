@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Comment } from 'src/entity/comment.entity';
 import { Product } from 'src/entity/product.entity';
 import { getRepository } from 'typeorm';
 
@@ -7,46 +6,61 @@ import { getRepository } from 'typeorm';
 export class ProductService {
   async findOne(product_no: number) {
     const product = await getRepository(Product)
-      .createQueryBuilder('product')
-      .leftJoinAndSelect('product.images', 'image')
-      .leftJoinAndSelect('product.productCategories', 'productCategory')
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.images', 'image')
+      .leftJoinAndSelect('p.productCategories', 'productCategory')
       .leftJoinAndSelect('productCategory.category', 'category')
-      .leftJoinAndSelect('product.user', 'user')
-      .leftJoinAndSelect('product.comments', 'comment')
+      .leftJoinAndSelect('p.user', 'seller')
+      .leftJoinAndSelect('p.comments', 'comment')
+      .leftJoinAndSelect('comment.user', 'commentWriter')
       .leftJoinAndSelect('comment.recomments', 'recomment')
-      .leftJoinAndSelect('product.wishes', 'wish')
-      .leftJoinAndSelect('user.deals', 'deal')
+      .leftJoinAndSelect('recomment.user', 'recommentWriter')
+      .leftJoinAndSelect('seller.deals', 'deal')
       .leftJoinAndSelect('deal.addressArea', 'addressArea')
       .leftJoinAndSelect('addressArea.addressCity', 'addressCity')
+      .leftJoinAndSelect('p.wishes', 'wish')
       .select([
         // 상품 기본정보
-        'product.product_no',
-        'product.product_title',
-        'product.product_content',
-        'product.product_price',
-        'product.product_view',
-        'product.product_state',
-        'product.createdAt',
-        'product.deleted',
+        'p.product_no',
+        'p.product_title',
+        'p.product_content',
+        'p.product_price',
+        'p.product_view',
+        'p.product_state',
+        'p.createdAt',
+        'p.deleted',
         // 상품 이미지
         'image.image_order',
         'image.image_src',
         // 카테고리
-        'productCategor.product_category_no',
+        'productCategory.product_category_no',
         'category.category_name',
-        // 유저
-        'users',
-        // 'user.user_no',
-        // 'user.user_tel',
-        // 'user.user_profile_image',
-        // 'user.user_nick',
-        // // 거래 희망 지역
-        // 'addressArea.area_name',
+        // 판매자
+        'seller.user_no',
+        'seller.user_tel',
+        'seller.user_profile_image',
+        'seller.user_nick',
+        // 거래 희망 지역
+        'deal.deal_no',
+        'addressArea.area_name',
+        'addressCity.city_name',
+        // 댓글
+        'comment.comment_no',
+        'comment.comment_content',
+        'commentWriter.user_no',
+        'commentWriter.user_profile_image',
+        'commentWriter.user_nick',
+        // 대댓글
+        'recomment.recomment_no',
+        'recomment.recomment_content',
+        'recommentWriter.user_no',
+        'recommentWriter.user_profile_image',
+        'recommentWriter.user_nick',
       ])
-      // ])
-      .where('product.product_no = :product_no', { product_no })
+      // .addSelect('COUNT(wish.wish_no)', 'countWish')
+      // .groupBy('p.product_no')
+      .where('p.product_no = :product_no', { product_no })
       .getMany();
-
     return product;
   }
 }
