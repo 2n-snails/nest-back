@@ -69,9 +69,27 @@ export class ProductController {
   }
 
   // 대댓글 작성
-  @Post(':product-id/recomment')
-  writeReComment() {
-    return 'write ReComment';
+  @UseGuards(JwtAuthGuard)
+  @Post(':product_id/recomment')
+  async writeReComment(@Req() req, @Body() data, @Param('product_id') id) {
+    const user = req.user;
+    const comment = await this.productService.findCommentById(data.comment_no);
+    if (!comment) {
+      return {
+        message: 'This comment does not exist',
+        success: false,
+      };
+    }
+    const result = await this.productService.createReComment(
+      user,
+      comment,
+      data,
+      id,
+    );
+    if (result) {
+      return { success: true, message: 'ReComment successful' };
+    }
+    throw new InternalServerErrorException();
   }
 
   // 신고하기
