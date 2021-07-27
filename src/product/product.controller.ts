@@ -1,13 +1,36 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  InternalServerErrorException,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { CreatedProductDTO } from './dto/createProduct.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
-import { Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 
 @Controller('product')
 export class ProductController {
-  constructor(private productService: ProductService) {}
+  constructor(private readonly productService: ProductService) {}
   // 상품 업로드
+  @Roles(userLevel.MEMBER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
-  productUpload(): string {
-    return 'product upload';
+  async productUpload(@Body() data: CreatedProductDTO, @Req() req) {
+    const user = req.user;
+    const result = await this.productService.createProduct(data, user);
+    if (result) {
+      return { suceess: true, message: 'Product Upload Success' };
+    } else {
+      throw new InternalServerErrorException();
+    }
   }
 
   // 상품 상세 정보
@@ -23,9 +46,26 @@ export class ProductController {
   }
 
   // 상품 댓글 작성
-  @Post(':product-id/comment')
-  writeComment() {
-    return 'write Comment';
+  @UseGuards(JwtAuthGuard)
+  @Post(':product_id/comment')
+  async writeComment(
+    @Req() req,
+    @Body() data,
+    @Param('product_id') id: number,
+  ) {
+    const user = req.user;
+    const product = await this.productService.findProductById(id);
+    if (!product) {
+      return {
+        message: 'This product does not exist',
+        success: false,
+      };
+    }
+    const result = await this.productService.createComment(user, data, product);
+    if (result) {
+      return { success: true, message: 'Comment successful' };
+    }
+    throw new InternalServerErrorException();
   }
 
   // 대댓글 작성
