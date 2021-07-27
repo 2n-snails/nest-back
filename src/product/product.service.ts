@@ -1,15 +1,21 @@
-import { getRepository } from 'typeorm';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entity/category.entity';
 import { Image } from 'src/entity/image.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
-import { Connection, Like, Repository } from 'typeorm';
+import {
+  Connection,
+  getConnection,
+  getRepository,
+  Like,
+  Repository,
+} from 'typeorm';
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import { Comment } from 'src/entity/comment.entity';
 import { Product } from 'src/entity/product.entity';
 import { ReComment } from 'src/entity/recomment.entity';
 
+import { Wish } from 'src/entity/wish.entity';
 @Injectable()
 export class ProductService {
   constructor(
@@ -220,5 +226,23 @@ export class ProductService {
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+  async findWishById(user_no, product_id) {
+    const wish = await getRepository(Wish)
+      .createQueryBuilder('wish')
+      .select()
+      .where(`wish.user = ${user_no}`)
+      .andWhere(`wish.product = ${product_id}`)
+      .getMany();
+    return wish;
+  }
+
+  async createWish(user_no, product_id) {
+    await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(Wish)
+      .values([{ user: user_no, product: product_id }])
+      .execute();
   }
 }
