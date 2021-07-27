@@ -7,7 +7,7 @@ import { Connection, Like, Repository } from 'typeorm';
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import { Comment } from 'src/entity/comment.entity';
 import { Product } from 'src/entity/product.entity';
-
+import { ReComment } from 'src/entity/recomment.entity';
 @Injectable()
 export class ProductService {
   constructor(
@@ -19,9 +19,11 @@ export class ProductService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(ProductCategory)
     private readonly productCategoryRepository: Repository<ProductCategory>,
-    private readonly connection: Connection,
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(ReComment)
+    private readonly reCommentRepository: Repository<ReComment>,
+    private readonly connection: Connection,
   ) {}
 
   async findProductById(product_no: number) {
@@ -31,32 +33,6 @@ export class ProductService {
         deleted: 'N',
       },
     });
-  }
-
-  async createComment(user, data, product) {
-    let result = true;
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // 댓글 작성
-      const { comment_content } = data;
-      const comment = await this.commentRepository.create({ comment_content });
-      comment.product = product;
-      comment.user = user;
-      await queryRunner.manager.save(comment);
-
-      await queryRunner.commitTransaction();
-      // 댓글 작성 후 상품의 판매자에게 알림을 생성해줘야함.
-    } catch (error) {
-      console.log('트랜잭션 실행중 실패로 롤백 진행');
-      await queryRunner.rollbackTransaction();
-      result = false;
-    } finally {
-      await queryRunner.release();
-      return result;
-    }
   }
 
   async createProduct(data: CreatedProductDTO, user): Promise<boolean> {
@@ -100,6 +76,67 @@ export class ProductService {
       await queryRunner.commitTransaction();
     } catch (error) {
       console.log('트랜잭션 실행중 실패로 롤백 진행');
+      await queryRunner.rollbackTransaction();
+      result = false;
+    } finally {
+      await queryRunner.release();
+      return result;
+    }
+  }
+
+  async findCommentById(comment_no: number) {
+    return await this.commentRepository.findOne({
+      where: {
+        comment_no: comment_no,
+        deleted: 'N',
+      },
+    });
+  }
+
+  async createComment(user, data, product) {
+    let result = true;
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // 댓글 작성
+      const { comment_content } = data;
+      const comment = await this.commentRepository.create({ comment_content });
+      comment.product = product;
+      comment.user = user;
+      await queryRunner.manager.save(comment);
+
+      await queryRunner.commitTransaction();
+      // 댓글 작성 후 상품의 판매자에게 알림을 생성해줘야함.
+    } catch (error) {
+      console.log('트랜잭션 실행중 실패로 롤백 진행');
+      await queryRunner.rollbackTransaction();
+      result = false;
+    } finally {
+      await queryRunner.release();
+      return result;
+    }
+  }
+
+  async createReComment(user, comment, data, id) {
+    // id 는 알림생성에 사용할 예정이라 아직은 사용하지 않습니다.
+    let result = true;
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // 대댓글 작성
+      const { recomment_content } = data;
+      const reComment = this.reCommentRepository.create({ recomment_content });
+      reComment.comment = comment;
+      reComment.user = user;
+      await queryRunner.manager.save(reComment);
+
+      await queryRunner.commitTransaction();
+      // 대댓글 작성 후 상품의 판매자에게 알림을 생성해줘야합니다.
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       result = false;
     } finally {
