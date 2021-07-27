@@ -233,7 +233,7 @@ export class ProductService {
       .select()
       .where(`wish.user = ${user_no}`)
       .andWhere(`wish.product = ${product_id}`)
-      .getMany();
+      .getOne();
     return wish;
   }
 

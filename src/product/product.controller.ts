@@ -103,8 +103,14 @@ export class ProductController {
   @Post(':product_id/wish')
   async wishProduct(@Req() req: any, @Param('product_id') product_id: number) {
     const { user_no } = req.user;
+    const product = await this.productService.findProductById(product_id);
+    if (!product) {
+      return {
+        message: 'no product',
+      };
+    }
     const user = await this.productService.findWishById(user_no, product_id);
-    if (user.length === 0) {
+    if (!user) {
       this.productService.createWish(user_no, product_id);
       return {
         message: 'wish successful',
