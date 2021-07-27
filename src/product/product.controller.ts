@@ -105,9 +105,9 @@ export class ProductController {
   }
 
   // 판매자 번호 보내주기
-  @Post(':product-id/seller-num')
-  sendPhoneNumber() {
-    return 'send phone number';
+  @Get(':product_id/seller-num')
+  async sendPhoneNumber(@Param('product_id') id: number) {
+    return await this.productService.findSellerPhoneNum(id);
   }
 
   // 상품 수정
