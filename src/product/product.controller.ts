@@ -99,9 +99,22 @@ export class ProductController {
   }
 
   // 찜하기
+  @UseGuards(JwtAuthGuard)
   @Post(':product_id/wish')
-  wishProduct() {
-    return 'wish product';
+  async wishProduct(@Req() req: any, @Param('product_id') product_id: number) {
+    const { user_no } = req.user;
+    const user = await this.productService.findWishById(user_no, product_id);
+    if (user.length === 0) {
+      this.productService.createWish(user_no, product_id);
+      return {
+        message: 'wish successful',
+        success: true,
+      };
+    }
+    return {
+      message: 'already exist',
+      success: false,
+    };
   }
 
   // 판매자 번호 보내주기
