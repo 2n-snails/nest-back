@@ -93,13 +93,13 @@ export class ProductController {
   }
 
   // 신고하기
-  @Post(':product-id/report')
-  declareProduct() {
-    return 'declare a product';
+  @Post(':product_id/report')
+  reportProduct() {
+    return 'report a product';
   }
 
   // 찜하기
-  @Post(':product-id/wish')
+  @Post(':product_id/wish')
   wishProduct() {
     return 'wish product';
   }
