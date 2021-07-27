@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { getRepository } from 'typeorm';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entity/category.entity';
 import { Image } from 'src/entity/image.entity';
@@ -9,6 +9,7 @@ import { CreatedProductDTO } from './dto/createProduct.dto';
 import { Comment } from 'src/entity/comment.entity';
 import { Product } from 'src/entity/product.entity';
 import { ReComment } from 'src/entity/recomment.entity';
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -204,6 +205,20 @@ export class ProductService {
     } finally {
       await queryRunner.release();
       return result;
+    }
+  }
+
+  // 판매자 전화번호 보내주기
+  async findSellerPhoneNum(product_no: number) {
+    try {
+      return await this.productRepository
+        .createQueryBuilder('p')
+        .select('u.user_tel as user_tel')
+        .leftJoin('p.user', 'u')
+        .where(`p.product_no = ${product_no}`)
+        .getRawOne();
+    } catch (error) {
+      throw new InternalServerErrorException();
     }
   }
 }
