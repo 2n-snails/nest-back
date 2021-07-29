@@ -1,7 +1,21 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { MypageService } from './mypage.service';
 
 @Controller('mypage')
 export class MypageController {
+  constructor(private readonly mypageService: MypageService) {}
   // 유저의 찜 목록
   @Get('my-wish/:user-id')
   wishList() {
@@ -39,9 +53,28 @@ export class MypageController {
   }
 
   // 유저 닉네임 수정
-  @Patch('my-info/:user-id/nickname')
-  userNickNameUpdate() {
-    return 'nickname update';
+  @UseGuards(JwtAuthGuard)
+  @Patch('my-info/:user_id/nickname')
+  async userNickNameUpdate(
+    @Req() req,
+    @Param('user_id') id: number,
+    @Body() data,
+  ) {
+    const userIdChecking: boolean = req.user.user_no === id;
+
+    if (userIdChecking) {
+      const result = await this.mypageService.userNickUpdate(data, id);
+      if (result) {
+        return {
+          success: true,
+          message: 'User nickname modification successful',
+        };
+      }
+      return { success: false, message: 'Failed to modify user nickname' };
+    }
+    throw new ForbiddenException(
+      'The user information and the user ID in the url do not match.',
+    );
   }
 
   // 프로필 사진 삭제
