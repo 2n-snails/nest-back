@@ -1,8 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from 'src/entity/category.entity';
-import { Image } from 'src/entity/image.entity';
-import { ProductCategory } from 'src/entity/product_category.entity';
+import { CreatedProductDTO } from './dto/createProduct.dto';
 import {
   Connection,
   getConnection,
@@ -10,12 +8,13 @@ import {
   Like,
   Repository,
 } from 'typeorm';
-import { CreatedProductDTO } from './dto/createProduct.dto';
 import { Comment } from 'src/entity/comment.entity';
 import { Product } from 'src/entity/product.entity';
 import { ReComment } from 'src/entity/recomment.entity';
-
 import { Wish } from 'src/entity/wish.entity';
+import { Category } from 'src/entity/category.entity';
+import { Image } from 'src/entity/image.entity';
+import { ProductCategory } from 'src/entity/product_category.entity';
 @Injectable()
 export class ProductService {
   constructor(
@@ -243,6 +242,16 @@ export class ProductService {
       .insert()
       .into(Wish)
       .values([{ user: user_no, product: product_id }])
+      .execute();
+  }
+
+  async deleteWish(user_no, product_id) {
+    await getConnection()
+      .createQueryBuilder()
+      .update(Wish)
+      .set({ deleted: 'Y' })
+      .where(`wish_user_no= ${user_no}`)
+      .andWhere(`wish_product_no= ${product_id}`)
       .execute();
   }
 }

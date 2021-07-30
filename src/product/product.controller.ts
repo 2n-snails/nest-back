@@ -107,6 +107,7 @@ export class ProductController {
     if (!product) {
       return {
         message: 'no product',
+        success: false,
       };
     }
     const user = await this.productService.findWishById(user_no, product_id);
@@ -142,8 +143,33 @@ export class ProductController {
   }
 
   // 찜 취소하기
-  @Delete(':product-id/wish')
-  wishCancleProduct() {
-    return 'wish product';
+  @UseGuards(JwtAuthGuard)
+  @Delete(':product_id/wish')
+  async wishCancleProduct(
+    @Req() req: any,
+    @Param('product_id') product_id: number,
+  ) {
+    const { user_no } = req.user;
+    const product = await this.productService.findProductById(product_id);
+    if (!product) {
+      return {
+        message: 'no product',
+        success: false,
+      };
+    }
+    const user = await this.productService.findWishById(user_no, product_id);
+    // 유저가 있다면
+    if (user) {
+      this.productService.deleteWish(user_no, product_id);
+      return {
+        message: 'wish successful',
+        success: true,
+      };
+    }
+    // 찜한게 없다면
+    return {
+      message: 'no wish',
+      success: true,
+    };
   }
 }
