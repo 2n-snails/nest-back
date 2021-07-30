@@ -254,4 +254,16 @@ export class ProductService {
       .andWhere(`wish_product_no= ${product_id}`)
       .execute();
   }
+
+  async deleteProduct(user_no, product_id) {
+    const deleteProduct = await getConnection()
+      .createQueryBuilder()
+      .update(Product)
+      .set({ deleted: 'Y' })
+      .where(`product_user_no= ${user_no}`)
+      .andWhere(`product_no= ${product_id}`)
+      .execute();
+
+    return deleteProduct;
+  }
 }

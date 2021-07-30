@@ -137,9 +137,34 @@ export class ProductController {
   }
 
   // 상품 삭제
-  @Delete(':product-id')
-  deletedProduct() {
-    return 'delete product';
+  @UseGuards(JwtAuthGuard)
+  @Delete(':product_id')
+  async deleteProduct(
+    @Req() req: any,
+    @Param('product_id') product_id: number,
+  ) {
+    const { user_no } = req.user;
+    const product = await this.productService.findProductById(product_id);
+    if (product) {
+      const isSuccess = await this.productService.deleteProduct(
+        user_no,
+        product_id,
+      );
+      if (isSuccess.affected === 0) {
+        return {
+          message: 'no result',
+          success: false,
+        };
+      }
+      return {
+        message: 'product delete successful',
+        success: true,
+      };
+    }
+    return {
+      message: 'no product',
+      success: false,
+    };
   }
 
   // 찜 취소하기
