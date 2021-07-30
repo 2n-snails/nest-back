@@ -107,6 +107,7 @@ export class ProductController {
     if (!product) {
       return {
         message: 'no product',
+        success: false,
       };
     }
     const user = await this.productService.findWishById(user_no, product_id);
