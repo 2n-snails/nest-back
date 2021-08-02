@@ -22,5 +22,6 @@ import { ReComment } from 'src/entity/recomment.entity';
   ],
   providers: [ProductService],
   controllers: [ProductController],
+  exports: [ProductService],
 })
 export class ProductModule {}

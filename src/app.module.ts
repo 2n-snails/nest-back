@@ -71,6 +71,7 @@ import { Wish } from './entity/wish.entity';
   ],
   controllers: [AppController],
   providers: [AppService],
+  exports: [AppService],
 })
 export class AppModule implements NestModule {
   // 미들웨어들은 consumer에 연결
