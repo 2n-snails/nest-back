@@ -25,7 +25,7 @@ export class MypageController {
   }
 
   // 유저의 판매중인 상품
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('my_product/:user_id')
   async productList(@Req() req, @Param('user_id') user_id: number) {
     const result = await this.mypageService.findUserProduct(user_id);
