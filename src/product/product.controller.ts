@@ -15,10 +15,14 @@ import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
+import { AppService } from 'src/app.service';
 
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly appService: AppService,
+  ) {}
   // 상품 업로드
   @Roles(userLevel.MEMBER)
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -63,6 +67,7 @@ export class ProductController {
     }
     const result = await this.productService.createComment(user, data, product);
     if (result) {
+      await this.appService.createNotice(user.user_no, id, 'comment');
       return { success: true, message: 'Comment successful' };
     }
     throw new InternalServerErrorException();
@@ -87,6 +92,7 @@ export class ProductController {
       id,
     );
     if (result) {
+      await this.appService.createNotice(user.user_no, id, 'recomment');
       return { success: true, message: 'ReComment successful' };
     }
     throw new InternalServerErrorException();
@@ -112,7 +118,8 @@ export class ProductController {
     }
     const user = await this.productService.findWishById(user_no, product_id);
     if (!user) {
-      this.productService.createWish(user_no, product_id);
+      await this.productService.createWish(user_no, product_id);
+      await this.appService.createNotice(user_no, product_id, 'wish');
       return {
         message: 'wish successful',
         success: true,

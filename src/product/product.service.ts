@@ -266,4 +266,14 @@ export class ProductService {
 
     return deleteProduct;
   }
+
+  // 상품의 판매자 정보 찾기
+  async findUserByProduct(product_no) {
+    return this.productRepository
+      .createQueryBuilder('p')
+      .select('u.user_no as user_no')
+      .leftJoin('p.user', 'u')
+      .where(`product_no = ${product_no}`)
+      .getRawOne();
+  }
 }
