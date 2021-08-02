@@ -29,8 +29,38 @@ export class MypageService {
   async findUserWish(user_id) {
     const result = await getRepository(Wish)
       .createQueryBuilder('wish')
-      .leftJoinAndSelect('wish.user', 'user')
-      .leftJoinAndSelect('wish.product', 'product')
+      .leftJoinAndSelect('wish.user', 'u')
+      .leftJoinAndSelect('wish.product', 'p')
+      .leftJoinAndSelect('p.images', 'image')
+      .leftJoinAndSelect('p.productCategories', 'category')
+      .select([
+        'wish.wish_no',
+        // 상품 정보
+        'p.product_no',
+        'p.product_title',
+        'p.product_price',
+        // 상품 이미지
+        'image.image_src',
+        'image_order',
+      ])
+      .loadRelationCountAndMap(
+        'p.wishCount',
+        'p.wishes',
+        'productWishCount',
+        (qb) => qb.where(`productWishCount.deleted = 'N'`),
+      )
+      .loadRelationCountAndMap(
+        'p.commentCount',
+        'p.comments',
+        'commentCount',
+        (qb) => qb.where(`commentCount.deleted = 'N'`),
+      )
+      .loadRelationCountAndMap(
+        'u.wishCount',
+        'u.wishes',
+        'userWishCount',
+        (qb) => qb.where(`userWishCount.deleted = 'N'`),
+      )
       .where(`wish.user = ${user_id}`)
       .getMany();
     return result;
