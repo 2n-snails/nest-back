@@ -12,9 +12,6 @@ export class Notice {
   @PrimaryGeneratedColumn()
   notice_no: number;
 
-  @Column({ type: 'integer' })
-  notice_writer_user_no: number;
-
   @Column({ type: 'varchar', length: 30 })
   notice_type: string;
 
