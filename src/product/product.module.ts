@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { Category } from 'src/entity/category.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
 import { Comment } from 'src/entity/comment.entity';
 import { ReComment } from 'src/entity/recomment.entity';
+import { AppModule } from 'src/app.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ReComment } from 'src/entity/recomment.entity';
       Category,
       ProductCategory,
     ]),
+    forwardRef(() => AppModule),
   ],
   providers: [ProductService],
   controllers: [ProductController],

@@ -3,7 +3,12 @@ import { AddressCity } from 'src/entity/address_city.entity';
 import { AddressArea } from './entity/address_area.entity';
 import { User } from './entity/user.entity';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  forwardRef,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -64,7 +69,7 @@ import { Wish } from './entity/wish.entity';
       ReComment,
       Review,
     ]),
-    ProductModule,
+    forwardRef(() => ProductModule),
     UsersModule,
     MypageModule,
     AuthModule,
