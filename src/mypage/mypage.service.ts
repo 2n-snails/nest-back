@@ -149,7 +149,27 @@ export class MypageService {
         'reviewWriter.user_nick',
       ])
       .getMany();
+    return result;
+  }
 
+  async findMyInfo(user_id: number) {
+    const result = await getRepository(User)
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.review_receiver', 'review')
+      .select([
+        'u.user_email',
+        'u.user_tel',
+        'u.user_profile_image',
+        'u.user_intro',
+        'u.user_nick',
+        'u.user_provider',
+        'u.createdAt',
+      ])
+      // 소수점 둘째 자리까지
+      .addSelect('AVG(review.review_score)::numeric(10,2)', 'reviewAvg')
+      .where(`u.user_no = ${user_id}`)
+      .groupBy('u.user_no')
+      .getRawOne();
     return result;
   }
 }
