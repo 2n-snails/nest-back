@@ -40,9 +40,11 @@ export class MypageController {
   }
 
   // 내 정보
-  @Get('my-info/:user-id')
-  myInfo() {
-    return 'my info';
+  @UseGuards(JwtAuthGuard)
+  @Get('my_info/:user_id')
+  async myInfo(@Req() req, @Param('user_id') user_id: number) {
+    const result = await this.mypageService.findMyInfo(user_id);
+    return result;
   }
 
   // 리뷰 작성하기
