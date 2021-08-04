@@ -25,9 +25,11 @@ export class MypageController {
   }
 
   // 유저의 판매중인 상품
-  @Get('my-product/:user-id')
-  productOnSale() {
-    return 'product on sale';
+  @UseGuards(JwtAuthGuard)
+  @Get('my_product/:user_id')
+  async productList(@Req() req, @Param('user_id') user_id: number) {
+    const result = await this.mypageService.findUserProduct(user_id);
+    return result;
   }
 
   // 유저의 리뷰 목록
