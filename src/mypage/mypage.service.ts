@@ -131,4 +131,25 @@ export class MypageService {
       .getMany();
     return result;
   }
+
+  async findUserReview(user_id: number) {
+    const result = await getRepository(User)
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.review_receiver', 'review')
+      .leftJoinAndSelect('review.writer', 'reviewWriter')
+      .where(`u.user_no = ${user_id}`)
+      .select([
+        'u.user_no',
+        'review.review_image',
+        'review.review_content',
+        'review.review_score',
+        'review.createdAt',
+        'reviewWriter.user_no',
+        'reviewWriter.user_profile_image',
+        'reviewWriter.user_nick',
+      ])
+      .getMany();
+
+    return result;
+  }
 }

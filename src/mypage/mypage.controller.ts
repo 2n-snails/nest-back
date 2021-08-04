@@ -32,10 +32,11 @@ export class MypageController {
     return result;
   }
 
-  // 유저의 리뷰 목록
-  @Get('my-review/:user-id')
-  reviewList() {
-    return 'review list';
+  // 유저에게 달린 리뷰 목록
+  @Get('my_review/:user_id')
+  async reviewList(@Req() req, @Param('user_id') user_id: number) {
+    const result = await this.mypageService.findUserReview(user_id);
+    return result;
   }
 
   // 내 정보
