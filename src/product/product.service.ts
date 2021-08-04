@@ -276,4 +276,22 @@ export class ProductService {
       .where(`product_no = ${product_no}`)
       .getRawOne();
   }
+
+  async updateProduct(data: any, product_no: number) {
+    //console.log(data);
+    const { product_title, product_content, product_price } = data;
+    const result = await this.productRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        product_title,
+        product_content,
+        product_price,
+      })
+      .where(`product_no = ${product_no}`)
+      .execute();
+    return result.affected > 0
+      ? { success: true, message: 'product update successful' }
+      : { success: false, message: 'product update failure' };
+  }
 }
