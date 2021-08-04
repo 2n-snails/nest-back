@@ -86,12 +86,6 @@ export class MypageController {
     );
   }
 
-  // 프로필 사진 삭제
-  @Delete('my-info/:user-id/image')
-  userProfileImageDelete() {
-    return 'delede image';
-  }
-
   // 회원 탈퇴
   @Delete('my-info/:user-id')
   wihteDrawMember() {
