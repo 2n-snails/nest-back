@@ -280,6 +280,7 @@ export class ProductService {
   async updateProduct(data: any, product_no: number) {
     //console.log(data);
     const { product_title, product_content, product_price } = data;
+    const image = data.images;
     const result = await this.productRepository
       .createQueryBuilder()
       .update()
@@ -290,8 +291,52 @@ export class ProductService {
       })
       .where(`product_no = ${product_no}`)
       .execute();
+
+    const productImage = await this.findProductImage(product_no);
+    const imagesrc = productImage.map((image) => {
+      return image.image_src;
+    });
+    console.log(imagesrc);
+    // 기존의 디비의 이미지와 새로 들어온 이미지의 정보를 비교 후 없는 값만 새로 추가하기
+    // 들어온 데이터와 일치한 데이터가 없다면 모두 추가
+    // 일치하지 않는 기존 데이터는 모두 deleted 값 변경 ????!!!!!!
+    image.map(async (imageArray, index) => {
+      const imageInDatabase = imagesrc.includes(imageArray);
+      console.log(imageInDatabase);
+      // if (imageInDatabase) {
+      //   // 새로 들어온 이미지가 데이터베이스에 이미 있을때
+      //   const order = image.indexOf(imageArray.image_src);
+      //   if (order !== imageArray.image_order) {
+      //     // 새로 들어온 이미지의 순서가 기존의 순서와 다를때
+      //     await this.imageRepository
+      //       .createQueryBuilder()
+      //       .update()
+      //       .set({ image_order: order })
+      //       .where(`image_no = ${imageArray.image_no}`)
+      //       .execute();
+      //   }
+      // } else {
+      //   // 기존의 디비에 있는 정보 중 새로들어온 정보와 일치하지 않다면 deleted컬럼 업데이트
+      //   await this.imageRepository
+      //     .createQueryBuilder()
+      //     .update()
+      //     .set({ deleted: 'Y' })
+      //     .where(`image_no = ${imageArray.image_no}`)
+      //     .execute();
+      // }
+    });
     return result.affected > 0
       ? { success: true, message: 'product update successful' }
       : { success: false, message: 'product update failure' };
+  }
+
+  // 상품의 이미지목록 가져오기
+  async findProductImage(product_no) {
+    const productImage = await this.imageRepository
+      .createQueryBuilder()
+      .select('*')
+      .where(`image_product_no = ${product_no}`)
+      .getRawMany();
+    return productImage;
   }
 }
