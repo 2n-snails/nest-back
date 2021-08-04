@@ -138,9 +138,19 @@ export class ProductController {
   }
 
   // 상품 수정
-  @Put(':product-id/update')
-  productInfoUpdate() {
-    return 'product update';
+  @UseGuards(JwtAuthGuard)
+  @Put(':product_id/update')
+  async productInfoUpdate(@Req() req, @Body() data, @Param('product_id') id) {
+    const { user_no } = req.user;
+    const result = await this.productService.findUserByProduct(id);
+    const productUpdate =
+      result.user_no === user_no
+        ? await this.productService.updateProduct(data, id)
+        : {
+            success: false,
+            message: 'You do not have permission to edit this product',
+          };
+    return productUpdate;
   }
 
   // 상품 삭제
