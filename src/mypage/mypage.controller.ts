@@ -17,9 +17,11 @@ import { MypageService } from './mypage.service';
 export class MypageController {
   constructor(private readonly mypageService: MypageService) {}
   // 유저의 찜 목록
-  @Get('my-wish/:user-id')
-  wishList() {
-    return 'wish list';
+  @UseGuards(JwtAuthGuard)
+  @Get('my_wish/:user_id')
+  async wishList(@Req() req, @Param('user_id') user_id: number) {
+    const result = await this.mypageService.findUserWish(user_id);
+    return result;
   }
 
   // 유저의 판매중인 상품
