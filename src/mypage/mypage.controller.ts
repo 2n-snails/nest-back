@@ -54,9 +54,11 @@ export class MypageController {
   }
 
   // 프로필 사진 변경
-  @Patch('my-info/:user-id/image')
-  userProfileImageUpdate() {
-    return 'update image';
+  // @UseGuards(JwtAuthGuard)
+  @Patch('my_info/:user_id/image')
+  async userProfileImageUpdate(@Req() req, @Param('user_id') user_id: number) {
+    const image = req.body.image;
+    return this.mypageService.userProfileImageUpdate(user_id, image);
   }
 
   // 유저 닉네임 수정
