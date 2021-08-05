@@ -54,7 +54,7 @@ export class MypageController {
   }
 
   // 프로필 사진 변경
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch('my_info/:user_id/image')
   async userProfileImageUpdate(@Req() req, @Param('user_id') user_id: number) {
     const image = req.body.image;
