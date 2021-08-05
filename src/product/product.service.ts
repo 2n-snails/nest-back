@@ -277,8 +277,8 @@ export class ProductService {
       .getRawOne();
   }
 
-  async updateProduct(data: any, product_no: number) {
-    //console.log(data);
+  async updateProduct(data: any, product_no: any) {
+    // 상품 테이블 정보 업데이트
     const { product_title, product_content, product_price } = data;
     const image = data.images;
     const result = await this.productRepository
@@ -292,40 +292,60 @@ export class ProductService {
       .where(`product_no = ${product_no}`)
       .execute();
 
+    // 상품이미지 조회
     const productImage = await this.findProductImage(product_no);
-    const imagesrc = productImage.map((image) => {
-      return image.image_src;
-    });
-    console.log(imagesrc);
-    // 기존의 디비의 이미지와 새로 들어온 이미지의 정보를 비교 후 없는 값만 새로 추가하기
-    // 들어온 데이터와 일치한 데이터가 없다면 모두 추가
-    // 일치하지 않는 기존 데이터는 모두 deleted 값 변경 ????!!!!!!
-    image.map(async (imageArray, index) => {
-      const imageInDatabase = imagesrc.includes(imageArray);
-      console.log(imageInDatabase);
-      // if (imageInDatabase) {
-      //   // 새로 들어온 이미지가 데이터베이스에 이미 있을때
-      //   const order = image.indexOf(imageArray.image_src);
-      //   if (order !== imageArray.image_order) {
-      //     // 새로 들어온 이미지의 순서가 기존의 순서와 다를때
-      //     await this.imageRepository
-      //       .createQueryBuilder()
-      //       .update()
-      //       .set({ image_order: order })
-      //       .where(`image_no = ${imageArray.image_no}`)
-      //       .execute();
-      //   }
-      // } else {
-      //   // 기존의 디비에 있는 정보 중 새로들어온 정보와 일치하지 않다면 deleted컬럼 업데이트
-      //   await this.imageRepository
-      //     .createQueryBuilder()
-      //     .update()
-      //     .set({ deleted: 'Y' })
-      //     .where(`image_no = ${imageArray.image_no}`)
-      //     .execute();
-      // }
-    });
-    return result.affected > 0
+
+    // 기존이 사진 데이터 중 새로들어온 사진과 일치하지 않은 사진은 deleted컬럼 값 업데이트
+    const deleteToImage = productImage.filter(
+      (value) => !image.includes(value.image_src),
+    );
+    for (let i = 0; i < deleteToImage.length; i++) {
+      await this.imageRepository
+        .createQueryBuilder()
+        .delete()
+        .where(`image_src = :src`, { src: deleteToImage[i].image_src })
+        .execute();
+    }
+
+    // 이미지 테이블 정보 업데이트
+    let imageUpdateResult = false;
+    for (let i = 0; i < image.length; i++) {
+      let query;
+      // 기존의 정보와 새로들어온 정보 중 일치하는 컬럼 값 확인
+      const check = productImage.some(
+        (images) => images.image_src === image[i],
+      );
+      // 일치하는 컬럼이 있다면 순서컬럼만 업데이트
+      if (check) {
+        query = getConnection()
+          .createQueryBuilder()
+          .update(Image)
+          .set({ image_order: i + 1 })
+          .where(`image_src = :src`, { src: image[i] })
+          .andWhere(`product = ${product_no}`);
+      }
+      // 일치하는 정보가 없다면 데이터베이스에 추가
+      else {
+        query = getConnection()
+          .createQueryBuilder()
+          .insert()
+          .into(Image)
+          .values([
+            {
+              image_order: i + 1,
+              image_src: image[i],
+              product: product_no,
+            },
+          ]);
+      }
+      const result = await query.execute();
+      console.log(result);
+      imageUpdateResult =
+        result.affected > 0 || result.raw.length !== 0
+          ? true
+          : imageUpdateResult;
+    }
+    return result.affected > 0 && imageUpdateResult
       ? { success: true, message: 'product update successful' }
       : { success: false, message: 'product update failure' };
   }
@@ -334,7 +354,7 @@ export class ProductService {
   async findProductImage(product_no) {
     const productImage = await this.imageRepository
       .createQueryBuilder()
-      .select('*')
+      .select('image_src')
       .where(`image_product_no = ${product_no}`)
       .getRawMany();
     return productImage;

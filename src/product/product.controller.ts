@@ -140,7 +140,11 @@ export class ProductController {
   // 상품 수정
   @UseGuards(JwtAuthGuard)
   @Put(':product_id/update')
-  async productInfoUpdate(@Req() req, @Body() data, @Param('product_id') id) {
+  async productInfoUpdate(
+    @Req() req,
+    @Body() data,
+    @Param('product_id') id: number | string,
+  ) {
     const { user_no } = req.user;
     const result = await this.productService.findUserByProduct(id);
     const productUpdate =
