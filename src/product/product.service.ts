@@ -302,7 +302,8 @@ export class ProductService {
     for (let i = 0; i < deleteToImage.length; i++) {
       await this.imageRepository
         .createQueryBuilder()
-        .delete()
+        .update()
+        .set({ deleted: 'Y' })
         .where(`image_src = :src`, { src: deleteToImage[i].image_src })
         .execute();
     }
