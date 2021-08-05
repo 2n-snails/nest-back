@@ -48,9 +48,23 @@ export class MypageController {
   }
 
   // 리뷰 작성하기
-  @Post('review-write/:user-id')
-  writeReview() {
-    return 'write review';
+  @UseGuards(JwtAuthGuard)
+  // 링크 user_id는 리뷰 받는 사람
+  @Post('review_write/:user_id')
+  async writeReview(@Req() req, @Param('user_id') user_id: number) {
+    const writer = req.user.user_no;
+    const { content, imageSrc, reviewScore } = req.body;
+    await this.mypageService.writeReview(
+      writer,
+      user_id,
+      content,
+      imageSrc,
+      reviewScore,
+    );
+    return {
+      success: true,
+      message: 'review write success',
+    };
   }
 
   // 프로필 사진 변경
