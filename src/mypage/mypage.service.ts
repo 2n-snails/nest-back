@@ -200,4 +200,17 @@ export class MypageService {
       .execute();
     return result;
   }
+
+  // 회원 탈퇴
+  async userDelete(user_no) {
+    const result = await getRepository(User)
+      .createQueryBuilder()
+      .update()
+      .set({
+        deleted: 'Y',
+      })
+      .where(`user_no = ${user_no}`)
+      .execute();
+    return result;
+  }
 }
