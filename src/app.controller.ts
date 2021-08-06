@@ -1,10 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
+import { AppService } from './app.service';
 
-@Controller('api/v1')
+@Controller()
 export class AppController {
+  constructor(private readonly appService: AppService) {}
   @Get('main')
-  mainPageData() {
-    return 'Main Page Router';
+  async mainPageData(@Query() query) {
+    const mainData = await this.appService.getMainPageData(query);
+    return mainData;
   }
 
   @Get('search')
