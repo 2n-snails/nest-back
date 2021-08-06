@@ -101,9 +101,11 @@ export class MypageController {
   }
 
   // 회원 탈퇴
-  @Delete('my-info/:user-id')
-  wihteDrawMember() {
-    return 'withdraw member';
+  @UseGuards(JwtAuthGuard)
+  @Delete('my_info/:user_id')
+  async deleteUser(@Req() req, @Param('user_id') user_id: number) {
+    const user_no = req.user.user_no;
+    return this.mypageService.userDelete(user_no);
   }
 
   // 리뷰 삭제
