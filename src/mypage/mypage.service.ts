@@ -213,4 +213,18 @@ export class MypageService {
       .execute();
     return result;
   }
+
+  // 리뷰 삭제
+  async reviewDelete(writer, review_id) {
+    const result = await getRepository(Review)
+      .createQueryBuilder()
+      .update()
+      .set({
+        deleted: 'Y',
+      })
+      .where(`writer = ${writer}`)
+      .andWhere(`review_no = ${review_id}`)
+      .execute();
+    return result;
+  }
 }
