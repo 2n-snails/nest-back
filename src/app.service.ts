@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { getConnection, getManager, getRepository } from 'typeorm';
+import { getConnection, getRepository } from 'typeorm';
 import { Notice } from './entity/notice.entity';
 import { Product } from './entity/product.entity';
 import { ProductService } from './product/product.service';
@@ -26,64 +26,77 @@ export class AppService {
       .execute();
   }
 
-  async getMainPageData(query: any) {
-    /* 
-    상품 테이블
-      - 상품 이름
-      - 상품 설명
-      - 상품 가격
-      - 상품 올린 시간
-    이미지 테이블 
-      - 이미지 주소
-      - 이미지 순서?
-    유저 테이블
-      - 판매자 이름
-      - 판매자 프로필 이미지주소
-    댓글 테이블
-      - 댓글 갯수
-    찜 테이블
-      - 찜 갯수
-    유저의 거래희망지역 테이블
-      - 거래희망 지역 번호
-    거래희망 지역테이블 
-      - 지역 이름
-    거래희망 지역 도시 테이블
-      - 도시 이름
-    */
-    const { sort, limit, page } = query;
+  async getMainPageData(sort, limit, page) {
     const count = await getRepository(Product).count();
     const totalPage = Math.ceil(count / limit);
     if (page <= totalPage && page > 0) {
-      if (page > 1 && !query.firstProductNo && !query.lastProductNo) {
-        return { success: false, message: 'not a valid request' };
-      }
-      const sortData = await getRepository(Product)
+      const sortQuery = await getRepository(Product)
         .createQueryBuilder('p')
         .select([
-          'p.product_no',
-          'COUNT(pc.comment_product_no) as commentCount',
+          'p.product_no as product_no',
+          'COUNT(wish.wish_product_no) as wishCount',
         ])
-        .leftJoin('p.comments', 'pc')
+        .leftJoin('p.wishes', 'wish')
         .groupBy('p.product_no')
-        .addGroupBy('pc.comment_product_no')
-        .orderBy('commentCount', 'DESC')
-        .limit(5)
-        .offset(5)
-        .execute();
-      console.log(sortData);
+        .addGroupBy('wish.wish_product_no');
+      if (sort === 'createdAt') {
+        sortQuery.orderBy('p.createdAt', 'DESC');
+      }
+      if (sort === 'wish') {
+        sortQuery
+          .orderBy('wishCount', 'DESC')
+          .addOrderBy('p.createdAt', 'DESC')
+          .addOrderBy('p.product_no', 'DESC');
+      }
 
+      const sortData = await sortQuery
+        .limit(limit)
+        .offset((page - 1) * limit)
+        .getRawMany();
+      // 정렬 데이터에서 상품 아이디값만 가져오기
+      const sortMap = sortData.map((value) => {
+        return value.product_no;
+      });
+
+      // 정렬된 아이디값을 통해 해당 상품 정보 조회하기
       const qb = getRepository(Product)
         .createQueryBuilder('p')
-        .addSelect([
+        // Product Entity
+        .select([
           'p.product_no',
           'p.product_title',
-          'i.image_src',
-          'i.image_order',
-          'i.image_no',
+          'p.product_content',
+          'p.createdAt',
+          'p.product_price',
         ])
-        .where(`p.product_no IN (:...no)`, { no: [1, 2, 3] })
+        // Image Entity
+        .addSelect(['i.image_no', 'i.image_order', 'i.image_src'])
+        // User Entity
+        .addSelect(['u.user_no', 'u.user_nick', 'u.user_profile_image'])
+        // Product Category Entity
+        .addSelect(['productCategory.product_category_no'])
+        // Category Entity
+        .addSelect('category.category_name')
+        // Deal Entity
+        .addSelect('deal.deal_no')
+        // AddressArea Entity
+        .addSelect('area.area_name')
+        // AddressCity Entity
+        .addSelect('city.city_name')
+        .where(`p.product_no IN (:...no)`, { no: sortMap })
         .leftJoin('p.user', 'u')
-        .leftJoin('p.images', 'i')
+        .leftJoin('p.images', 'i', 'i.deleted = :value', { value: 'N' })
+        .leftJoin(
+          'p.productCategories',
+          'productCategory',
+          'productCategory.deleted = :value',
+          { value: 'N' },
+        )
+        .leftJoin('productCategory.category', 'category')
+        .leftJoin('u.deals', 'deal', 'deal.deleted = :value', { value: 'N' })
+        .leftJoin('deal.addressArea', 'area')
+        .leftJoin('area.addressCity', 'city')
+        .orderBy(`ARRAY_POSITION(ARRAY[${sortMap}], p.product_no)`)
         .loadRelationCountAndMap(
           'p.wishCount',
           'p.wishes',
@@ -96,38 +109,24 @@ export class AppService {
           'commentCount',
           (qb2) => qb2.where('commentCount.deleted = :value', { value: 'N' }),
         );
-      if (page <= totalPage && query.lastProductNo) {
-        qb.where(`p.product_no < ${query.lastProductNo}`);
-      }
-      if (page <= totalPage && query.firstProductNo) {
-        qb.where(`p.product_no > ${query.firstProductNo}`);
-      }
       const data = await qb.getMany();
-      const firstProductNo = data[0].product_no;
-      const lastProductNo = data[data.length - 1].product_no;
 
       const next =
         page < totalPage
           ? `${
               process.env.SERVER_URL
-            }/api/v1/main?sort=${sort}&limit=${limit}&page=${
-              Number(page) + 1
-            }&lastProductNo=${lastProductNo}`
+            }/api/v1/main?sort=${sort}&limit=${limit}&page=${Number(page) + 1}`
           : null;
       const prev =
         page <= totalPage && page > 1
           ? `${
               process.env.SERVER_URL
-            }/api/v1/main?sort=${sort}&limit=${limit}&page=${
-              Number(page) - 1
-            }&firstProductNo=${firstProductNo}`
+            }/api/v1/main?sort=${sort}&limit=${limit}&page=${Number(page) - 1}`
           : null;
       return {
         success: true,
         data,
         totalCount: count,
-        firstProductNo,
-        lastProductNo,
         next,
         prev,
       };
