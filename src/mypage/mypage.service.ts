@@ -172,4 +172,15 @@ export class MypageService {
       .getRawOne();
     return result;
   }
+
+  async userProfileImageUpdate(user_id: number, image: any) {
+    const result = await getRepository(User)
+      .createQueryBuilder()
+      .update({
+        user_profile_image: image,
+      })
+      .where(`user_no = ${user_id}`)
+      .execute();
+    return result;
+  }
 }
