@@ -149,48 +149,45 @@ export class AppService {
       if (page > 1 && !query.firstProductNo && !query.lastProductNo) {
         return { success: false, message: 'not a valid request' };
       }
-      const qb = getRepository(Product)
+      const sortData = await getRepository(Product)
         .createQueryBuilder('p')
-        .distinct(true)
         .select([
           'p.product_no',
-          'p.product_title',
-          'p.product_content',
-          'p.product_price',
-          'p.createdAt',
-          // 'u.user_nick',
-          // 'u.user_profile_image',
-          // 'i.image_src',
-          // // 'i.image_order',
-          // 'i.image_no',
-          'comment.comment_no',
-          'COUNT(comment.comment_product_no) as commentCount',
+          'COUNT(pc.comment_product_no) as commentCount',
         ])
+        .leftJoin('p.comments', 'pc')
+        .groupBy('p.product_no')
+        .addGroupBy('pc.comment_product_no')
+        .orderBy('commentCount', 'DESC')
+        .limit(5)
+        .offset(5)
+        .execute();
+      console.log(sortData);
+
+      const qb = getRepository(Product)
+        .createQueryBuilder('p')
+        .addSelect([
+          'p.product_no',
+          'p.product_title',
+          'i.image_src',
+          'i.image_order',
+          'i.image_no',
+        ])
+        .where(`p.product_no IN (:...no)`, { no: [1, 2, 3] })
         .leftJoin('p.user', 'u')
         .leftJoin('p.images', 'i')
-        .leftJoinAndSelect('p.comments', 'comment')
-        .groupBy('p.product_no')
-        .addGroupBy('p.product_title')
-        .addGroupBy('p.product_content')
-        .addGroupBy('p.product_price')
-        .addGroupBy('p.createdAt')
-        .addGroupBy('comment.comment_no')
-        .addGroupBy('comment.comment_product_no')
-        // .addGroupBy('i.image_src')
-        // .addGroupBy('i.image_no')
-        .take(limit);
-      // .loadRelationCountAndMap(
-      //   'p.wishCount',
-      //   'p.wishes',
-      //   'wishCount',
-      //   (qb2) => qb2.where('wishCount.deleted = :value', { value: 'N' }),
-      // )
-      // .loadRelationCountAndMap(
-      //   'p.commentCount',
-      //   'p.comments',
-      //   'commentCount',
-      //   (qb2) => qb2.where('commentCount.deleted = :value', { value: 'N' }),
-      // )
+        .loadRelationCountAndMap(
+          'p.wishCount',
+          'p.wishes',
+          'wishCount',
+          (qb2) => qb2.where('wishCount.deleted = :value', { value: 'N' }),
+        )
+        .loadRelationCountAndMap(
+          'p.commentCount',
+          'p.comments',
+          'commentCount',
+          (qb2) => qb2.where('commentCount.deleted = :value', { value: 'N' }),
+        );
       if (page <= totalPage && query.lastProductNo) {
         qb.where(`p.product_no < ${query.lastProductNo}`);
       }
