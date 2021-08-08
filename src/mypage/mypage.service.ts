@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Review } from 'src/entity/review.entity';
 import { User } from 'src/entity/user.entity';
 import { getRepository } from 'typeorm';
 
@@ -180,6 +181,22 @@ export class MypageService {
         user_profile_image: image,
       })
       .where(`user_no = ${user_id}`)
+      .execute();
+    return result;
+  }
+
+  // 리뷰 작성
+  async writeReview(writer, user_id, content, imageSrc, reviewScore) {
+    const result = await getRepository(Review)
+      .createQueryBuilder()
+      .insert()
+      .values({
+        receiver: user_id,
+        writer: writer,
+        review_content: content,
+        review_image: imageSrc,
+        review_score: reviewScore,
+      })
       .execute();
     return result;
   }
