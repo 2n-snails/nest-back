@@ -109,8 +109,10 @@ export class MypageController {
   }
 
   // 리뷰 삭제
-  @Delete('review-delete/:review-id')
-  reviewDelete() {
-    return 'review delete';
+  @UseGuards(JwtAuthGuard)
+  @Delete('review_delete/:review_id')
+  deleteReview(@Req() req, @Param('review_id') review_id: number) {
+    const writer = req.user.user_no;
+    return this.mypageService.reviewDelete(writer, review_id);
   }
 }
