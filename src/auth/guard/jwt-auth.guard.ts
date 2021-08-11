@@ -75,10 +75,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           };
         }
       } else {
-        console.log('남은 시간 5분이상');
+        // 남은 시간이 5분 이상일때
         if (token_verify.user_token === 'loginToken') {
-          return await this.userService.findUserById(token_verify.user_no);
+          const user = await this.userService.findUserById(
+            token_verify.user_no,
+          );
+          return {
+            user,
+            tokenReissue: false,
+          };
         } else {
+          // 헤더의 토큰이 onceToken일때는 그냥 토큰을 그냥 리턴(회원가입을 위한 유저 정보가 담겨있음)
           return token_verify;
         }
       }
