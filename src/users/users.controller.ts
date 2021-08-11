@@ -37,7 +37,7 @@ export class UsersController {
   @UseGuards(KakaoAuthGuard)
   @Get('auth/kakao/callback')
   async kakaocallback(@Req() req, @Res() res: Response) {
-    res.header('access_token', req.user.access_token);
+    res.cookie('access_token', req.user.access_token);
     res.header('refresh_token', req.user.refresh_token);
     res.send('OK');
     res.end();
