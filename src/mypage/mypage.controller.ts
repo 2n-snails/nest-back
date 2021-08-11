@@ -1,3 +1,4 @@
+import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -13,6 +14,7 @@ import {
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { MypageService } from './mypage.service';
 
+@ApiTags('mypage')
 @Controller('mypage')
 export class MypageController {
   constructor(private readonly mypageService: MypageService) {}
