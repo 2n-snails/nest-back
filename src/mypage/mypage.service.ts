@@ -6,12 +6,11 @@ import { getRepository } from 'typeorm';
 @Injectable()
 export class MypageService {
   // 유저 닉네임 수정하기
-  async userNickUpdate(data, user_no) {
-    const { user_nick } = data;
+  async userNickUpdate(userNick, user_no) {
     try {
       const result = await getRepository(User)
         .createQueryBuilder()
-        .update(User, { user_nick: user_nick })
+        .update(User, { user_nick: userNick })
         .returning('*')
         .where(`user_no = ${user_no}`)
         .updateEntity(true)

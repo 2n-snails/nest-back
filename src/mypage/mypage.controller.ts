@@ -1,3 +1,4 @@
+import { UpdateUserNickDto } from './dto/updateUserNick.dto';
 import { UpdateUserImageDto } from './dto/updateUserImage.dto';
 import { CreateReviewDto } from './dto/createReview.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -94,13 +95,14 @@ export class MypageController {
   async userNickNameUpdate(
     @Req() req,
     @Param() param: UserIdParam,
-    @Body() data,
+    @Body() updateUserNickDto: UpdateUserNickDto,
   ) {
+    const { userNick } = updateUserNickDto;
     const userIdChecking: boolean = req.user.user_no === param.user_id;
 
     if (userIdChecking) {
       const result = await this.mypageService.userNickUpdate(
-        data,
+        userNick,
         param.user_id,
       );
       if (result) {
