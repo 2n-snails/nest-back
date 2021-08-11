@@ -1,3 +1,4 @@
+import { CreateReviewDto } from './dto/createReview.dto';
 import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
@@ -54,9 +55,13 @@ export class MypageController {
   @UseGuards(JwtAuthGuard)
   // 링크 user_id는 리뷰 받는 사람
   @Post('review_write/:user_id')
-  async writeReview(@Req() req, @Param() param: UserIdParam) {
+  async writeReview(
+    @Req() req,
+    @Body() createReviewDto: CreateReviewDto,
+    @Param() param: UserIdParam,
+  ) {
     const writer = req.user.user_no;
-    const { content, imageSrc, reviewScore } = req.body;
+    const { content, imageSrc, reviewScore } = createReviewDto;
     await this.mypageService.writeReview(
       writer,
       param.user_id,
