@@ -1,3 +1,4 @@
+import { UpdateUserImageDto } from './dto/updateUserImage.dto';
 import { CreateReviewDto } from './dto/createReview.dto';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -78,14 +79,18 @@ export class MypageController {
   // 프로필 사진 변경
   @UseGuards(JwtAuthGuard)
   @Patch('my_info/:user_id/image')
-  async userProfileImageUpdate(@Req() req, @Param() param: UserIdParam) {
-    const image = req.body.image;
+  async userProfileImageUpdate(
+    @Req() req,
+    @Body() updateUserImageDto: UpdateUserImageDto,
+    @Param() param: UserIdParam,
+  ) {
+    const { image } = updateUserImageDto;
     return this.mypageService.userProfileImageUpdate(param.user_id, image);
   }
 
   // 유저 닉네임 수정
   @UseGuards(JwtAuthGuard)
-  @Patch('my-info/:user_id/nickname')
+  @Patch('my_info/:user_id/nickname')
   async userNickNameUpdate(
     @Req() req,
     @Param() param: UserIdParam,
