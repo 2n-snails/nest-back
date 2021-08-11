@@ -5,19 +5,11 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private userService: UsersService) {
+  constructor(private readonly userService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
+      ignoreExpiration: true,
       secretOrKey: process.env.JWT_SECRET,
     });
-  }
-
-  async validate(payload: any) {
-    if (payload.user_token === 'loginToken') {
-      return await this.userService.findUserByEmail(payload.user_email);
-    } else {
-      return payload;
-    }
   }
 }
