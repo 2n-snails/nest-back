@@ -3,7 +3,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
@@ -29,8 +28,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     const token = authorization.replace('Bearer ', '');
-    request.user = await this.validate(token);
-    response.setHeader('a', 'a');
+    const tokenValidate = await this.validate(token);
+    if (tokenValidate.tokenReissue) {
+      response.setHeader('access_token', tokenValidate.new_token);
+      response.setHeader('tokenReissue', tokenValidate.tokenReissue);
+    } else {
+      response.setHeader('tokenReissue', tokenValidate.tokenReissue);
+    }
+    request.user = tokenValidate.user;
+    // response.setHeader('access_token', 'a');
     return true;
   }
 
@@ -49,22 +55,41 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       );
 
       if (time_remaining < 5) {
-        console.log('남은 시간 5분 미만');
+        // 남은 시간이 5분 미만일때
         const user = await this.userService.findUserById(token_verify.user_no);
-        const new_token = this.authService.createLoginToken(user);
+        const new_token = await this.authService.createLoginToken(user);
+        return {
+          user,
+          new_token,
+          tokenReissue: true,
+        };
       } else {
-        console.log('남은 시간 5분이상');
+        // 남은 시간이 5분 이상일때
         if (token_verify.user_token === 'loginToken') {
-          return await this.userService.findUserById(token_verify.user_no);
+          const user = await this.userService.findUserById(
+            token_verify.user_no,
+          );
+          return {
+            user,
+            tokenReissue: false,
+          };
         } else {
+          // 헤더의 토큰이 onceToken일때는 그냥 토큰을 그냥 리턴(회원가입을 위한 유저 정보가 담겨있음)
           return token_verify;
         }
       }
     } catch (error) {
-      throw new UnauthorizedException(
-        '유효하지 않은 토큰입니다.',
-        'UnauthorizedException',
-      );
+      switch (error.message) {
+        // 토큰에 대한 오류를 판단합니다.
+        case 'invalid token':
+          throw new HttpException('유효하지 않은 토큰입니다.', 401);
+
+        case 'jwt expired':
+          throw new HttpException('토큰이 만료되었습니다.', 410);
+
+        default:
+          throw new HttpException('서버 오류입니다.', 500);
+      }
     }
   }
 }
