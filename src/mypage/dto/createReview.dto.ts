@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumberString, IsString } from 'class-validator';
 
 export class CreateReviewDto {
   @ApiProperty({
@@ -17,6 +17,6 @@ export class CreateReviewDto {
   @ApiProperty({
     description: '리뷰 점수',
   })
-  @IsNumber()
+  @IsNumberString()
   reviewScore: number;
 }
