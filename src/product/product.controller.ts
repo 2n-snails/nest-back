@@ -19,6 +19,7 @@ import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 import { AppService } from 'src/app.service';
+import { CreateReCommentDto } from './dto/createReComment.dto';
 
 @ApiTags('product')
 @Controller('product')
@@ -96,11 +97,13 @@ export class ProductController {
   @Post(':product_id/recomment')
   async writeReComment(
     @Req() req,
-    @Body() data,
+    @Body() createReCommentDto: CreateReCommentDto,
     @Param() param: ProductIdParam,
   ) {
     const user = req.user;
-    const comment = await this.productService.findCommentById(data.comment_no);
+    const comment = await this.productService.findCommentById(
+      createReCommentDto.comment_no,
+    );
     if (!comment) {
       return {
         message: 'This comment does not exist',
@@ -110,7 +113,7 @@ export class ProductController {
     const result = await this.productService.createReComment(
       user,
       comment,
-      data,
+      createReCommentDto,
       param.product_id,
     );
     if (result) {

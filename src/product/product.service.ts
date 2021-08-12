@@ -16,7 +16,7 @@ import { Wish } from 'src/entity/wish.entity';
 import { Category } from 'src/entity/category.entity';
 import { Image } from 'src/entity/image.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
-import { timeStamp } from 'console';
+import { CreateReCommentDto } from './dto/createReComment.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -193,7 +193,12 @@ export class ProductService {
     }
   }
 
-  async createReComment(user, comment, data, id) {
+  async createReComment(
+    user,
+    comment,
+    createReCommentDto: CreateReCommentDto,
+    id,
+  ) {
     // id 는 알림생성에 사용할 예정이라 아직은 사용하지 않습니다.
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
@@ -202,7 +207,7 @@ export class ProductService {
 
     try {
       // 대댓글 작성
-      const { recomment_content } = data;
+      const { recomment_content } = createReCommentDto;
       const reComment = this.reCommentRepository.create({ recomment_content });
       reComment.comment = comment;
       reComment.user = user;
