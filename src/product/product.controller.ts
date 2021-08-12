@@ -1,3 +1,4 @@
+import { ProductIdParam } from './dto/productIdParam.dto';
 import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
@@ -41,26 +42,22 @@ export class ProductController {
 
   // 상품 상세 정보
   @Get(':product_id')
-  productInfo(@Param() params) {
-    return this.productService.findOne(params.product_id);
+  productInfo(@Param() param: ProductIdParam) {
+    return this.productService.findOne(param.product_id);
   }
 
   // 추천 상품
   @Get(':product-id/recommend')
-  recommendProduct() {
+  recommendProduct(@Param() param: ProductIdParam) {
     return 'recommend products';
   }
 
   // 상품 댓글 작성
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/comment')
-  async writeComment(
-    @Req() req,
-    @Body() data,
-    @Param('product_id') id: number,
-  ) {
+  async writeComment(@Req() req, @Body() data, @Param() param: ProductIdParam) {
     const user = req.user;
-    const product = await this.productService.findProductById(id);
+    const product = await this.productService.findProductById(param.product_id);
     if (!product) {
       return {
         message: 'This product does not exist',
@@ -69,7 +66,11 @@ export class ProductController {
     }
     const result = await this.productService.createComment(user, data, product);
     if (result) {
-      await this.appService.createNotice(user.user_no, id, 'comment');
+      await this.appService.createNotice(
+        user.user_no,
+        param.product_id,
+        'comment',
+      );
       return { success: true, message: 'Comment successful' };
     }
     throw new InternalServerErrorException();
@@ -78,7 +79,11 @@ export class ProductController {
   // 대댓글 작성
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/recomment')
-  async writeReComment(@Req() req, @Body() data, @Param('product_id') id) {
+  async writeReComment(
+    @Req() req,
+    @Body() data,
+    @Param() param: ProductIdParam,
+  ) {
     const user = req.user;
     const comment = await this.productService.findCommentById(data.comment_no);
     if (!comment) {
@@ -91,10 +96,14 @@ export class ProductController {
       user,
       comment,
       data,
-      id,
+      param.product_id,
     );
     if (result) {
-      await this.appService.createNotice(user.user_no, id, 'recomment');
+      await this.appService.createNotice(
+        user.user_no,
+        param.product_id,
+        'recomment',
+      );
       return { success: true, message: 'ReComment successful' };
     }
     throw new InternalServerErrorException();
@@ -102,26 +111,29 @@ export class ProductController {
 
   // 신고하기
   @Post(':product_id/report')
-  reportProduct() {
+  reportProduct(@Param() param: ProductIdParam) {
     return 'report a product';
   }
 
   // 찜하기
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/wish')
-  async wishProduct(@Req() req: any, @Param('product_id') product_id: number) {
+  async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const { user_no } = req.user;
-    const product = await this.productService.findProductById(product_id);
+    const product = await this.productService.findProductById(param.product_id);
     if (!product) {
       return {
         message: 'no product',
         success: false,
       };
     }
-    const user = await this.productService.findWishById(user_no, product_id);
+    const user = await this.productService.findWishById(
+      user_no,
+      param.product_id,
+    );
     if (!user) {
-      await this.productService.createWish(user_no, product_id);
-      await this.appService.createNotice(user_no, product_id, 'wish');
+      await this.productService.createWish(user_no, param.product_id);
+      await this.appService.createNotice(user_no, param.product_id, 'wish');
       return {
         message: 'wish successful',
         success: true,
@@ -135,8 +147,8 @@ export class ProductController {
 
   // 판매자 번호 보내주기
   @Get(':product_id/seller-num')
-  async sendPhoneNumber(@Param('product_id') id: number) {
-    return await this.productService.findSellerPhoneNum(id);
+  async sendPhoneNumber(@Param() param: ProductIdParam) {
+    return await this.productService.findSellerPhoneNum(param.product_id);
   }
 
   // 상품 수정
@@ -145,13 +157,15 @@ export class ProductController {
   async productInfoUpdate(
     @Req() req,
     @Body() data,
-    @Param('product_id') id: number | string,
+    @Param() param: ProductIdParam,
   ) {
     const { user_no } = req.user;
-    const result = await this.productService.findUserByProduct(id);
+    const result = await this.productService.findUserByProduct(
+      param.product_id,
+    );
     const productUpdate =
       result.user_no === user_no
-        ? await this.productService.updateProduct(data, id)
+        ? await this.productService.updateProduct(data, param.product_id)
         : {
             success: false,
             message: 'You do not have permission to edit this product',
@@ -162,16 +176,13 @@ export class ProductController {
   // 상품 삭제
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id')
-  async deleteProduct(
-    @Req() req: any,
-    @Param('product_id') product_id: number,
-  ) {
+  async deleteProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const { user_no } = req.user;
-    const product = await this.productService.findProductById(product_id);
+    const product = await this.productService.findProductById(param.product_id);
     if (product) {
       const isSuccess = await this.productService.deleteProduct(
         user_no,
-        product_id,
+        param.product_id,
       );
       if (isSuccess.affected === 0) {
         return {
@@ -193,22 +204,22 @@ export class ProductController {
   // 찜 취소하기
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id/wish')
-  async wishCancleProduct(
-    @Req() req: any,
-    @Param('product_id') product_id: number,
-  ) {
+  async wishCancleProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const { user_no } = req.user;
-    const product = await this.productService.findProductById(product_id);
+    const product = await this.productService.findProductById(param.product_id);
     if (!product) {
       return {
         message: 'no product',
         success: false,
       };
     }
-    const user = await this.productService.findWishById(user_no, product_id);
+    const user = await this.productService.findWishById(
+      user_no,
+      param.product_id,
+    );
     // 유저가 있다면
     if (user) {
-      this.productService.deleteWish(user_no, product_id);
+      this.productService.deleteWish(user_no, param.product_id);
       return {
         message: 'wish successful',
         success: true,
