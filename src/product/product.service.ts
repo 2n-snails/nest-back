@@ -1,3 +1,4 @@
+import { CreatedCommentDTO } from './dto/createComment.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatedProductDTO } from './dto/createProduct.dto';
@@ -166,7 +167,7 @@ export class ProductService {
     });
   }
 
-  async createComment(user, data, product) {
+  async createComment(user, createdCommentDTO: CreatedCommentDTO, product) {
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -174,7 +175,7 @@ export class ProductService {
 
     try {
       // 댓글 작성
-      const { comment_content } = data;
+      const { comment_content } = createdCommentDTO;
       const comment = await this.commentRepository.create({ comment_content });
       comment.product = product;
       comment.user = user;

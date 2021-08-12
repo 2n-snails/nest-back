@@ -1,3 +1,4 @@
+import { CreatedCommentDTO } from './dto/createComment.dto';
 import { ProductIdParam } from './dto/productIdParam.dto';
 import { ApiTags } from '@nestjs/swagger';
 import {
@@ -61,7 +62,11 @@ export class ProductController {
   // 상품 댓글 작성
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/comment')
-  async writeComment(@Req() req, @Body() data, @Param() param: ProductIdParam) {
+  async writeComment(
+    @Req() req,
+    @Body() createdCommentDTO: CreatedCommentDTO,
+    @Param() param: ProductIdParam,
+  ) {
     const user = req.user;
     const product = await this.productService.findProductById(param.product_id);
     if (!product) {
@@ -70,7 +75,11 @@ export class ProductController {
         success: false,
       };
     }
-    const result = await this.productService.createComment(user, data, product);
+    const result = await this.productService.createComment(
+      user,
+      createdCommentDTO,
+      product,
+    );
     if (result) {
       await this.appService.createNotice(
         user.user_no,
