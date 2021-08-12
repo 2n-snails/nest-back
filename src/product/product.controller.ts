@@ -30,9 +30,15 @@ export class ProductController {
   @Roles(userLevel.MEMBER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
-  async productUpload(@Body() data: CreatedProductDTO, @Req() req) {
+  async productUpload(
+    @Body() createdProductDTO: CreatedProductDTO,
+    @Req() req,
+  ) {
     const user = req.user;
-    const result = await this.productService.createProduct(data, user);
+    const result = await this.productService.createProduct(
+      createdProductDTO,
+      user,
+    );
     if (result) {
       return { suceess: true, message: 'Product Upload Success' };
     } else {

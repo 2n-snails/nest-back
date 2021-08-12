@@ -43,7 +43,10 @@ export class ProductService {
     });
   }
 
-  async createProduct(data: CreatedProductDTO, user): Promise<boolean> {
+  async createProduct(
+    createdProductDTO: CreatedProductDTO,
+    user,
+  ): Promise<boolean> {
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -51,7 +54,8 @@ export class ProductService {
 
     try {
       // 상품 업로드
-      const { product_title, product_content, product_price } = data;
+      const { product_title, product_content, product_price } =
+        createdProductDTO;
       const product = await this.productRepository.create({
         product_title,
         product_content,
@@ -61,9 +65,9 @@ export class ProductService {
       await queryRunner.manager.save(product);
 
       // 상품 이미지 업로드
-      for (let i = 0; i < data.images.length; i++) {
+      for (let i = 0; i < createdProductDTO.images.length; i++) {
         const image = await this.imageRepository.create({
-          image_src: data.images[i],
+          image_src: createdProductDTO.images[i],
           image_order: i + 1,
         });
         image.product = product;
@@ -71,9 +75,9 @@ export class ProductService {
       }
 
       // 상품 카테고리 업로드
-      for (let i = 0; i < data.productCategories.length; i++) {
+      for (let i = 0; i < createdProductDTO.productCategories.length; i++) {
         const category = await this.categoryRepository.findOne({
-          category_name: Like(`${data.productCategories[i]}`),
+          category_name: Like(`${createdProductDTO.productCategories[i]}`),
         });
         const newProductCategory = await this.productCategoryRepository.create({
           product,
