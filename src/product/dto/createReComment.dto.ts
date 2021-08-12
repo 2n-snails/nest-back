@@ -5,7 +5,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export class CreateReCommentDto {
+export class CreateReCommentDTO {
   @IsNumberString()
   @IsNotEmpty()
   comment_no: number;

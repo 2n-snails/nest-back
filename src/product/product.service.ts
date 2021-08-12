@@ -16,7 +16,7 @@ import { Wish } from 'src/entity/wish.entity';
 import { Category } from 'src/entity/category.entity';
 import { Image } from 'src/entity/image.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
-import { CreateReCommentDto } from './dto/createReComment.dto';
+import { CreateReCommentDTO } from './dto/createReComment.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -196,7 +196,7 @@ export class ProductService {
   async createReComment(
     user,
     comment,
-    createReCommentDto: CreateReCommentDto,
+    createReCommentDto: CreateReCommentDTO,
     id,
   ) {
     // id 는 알림생성에 사용할 예정이라 아직은 사용하지 않습니다.

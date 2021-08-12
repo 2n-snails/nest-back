@@ -19,7 +19,7 @@ import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 import { AppService } from 'src/app.service';
-import { CreateReCommentDto } from './dto/createReComment.dto';
+import { CreateReCommentDTO } from './dto/createReComment.dto';
 
 @ApiTags('product')
 @Controller('product')
@@ -97,7 +97,7 @@ export class ProductController {
   @Post(':product_id/recomment')
   async writeReComment(
     @Req() req,
-    @Body() createReCommentDto: CreateReCommentDto,
+    @Body() createReCommentDto: CreateReCommentDTO,
     @Param() param: ProductIdParam,
   ) {
     const user = req.user;
