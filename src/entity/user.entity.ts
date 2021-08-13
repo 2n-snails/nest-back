@@ -47,6 +47,9 @@ export class User {
   @Column({ type: 'boolean', default: false })
   user_privacy: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  user_refresh_token: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
