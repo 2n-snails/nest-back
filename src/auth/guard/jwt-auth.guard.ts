@@ -36,7 +36,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       response.setHeader('tokenReissue', tokenValidate.tokenReissue);
     }
     request.user = tokenValidate.user;
-    // response.setHeader('access_token', 'a');
     return true;
   }
 
