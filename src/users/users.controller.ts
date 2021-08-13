@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { NaverAuthGuard } from '../auth/guard/naver-auth.guard';
-import { Controller, Get, Req, Request, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao-auth.guard';
 import { Post } from '@nestjs/common';
@@ -45,13 +45,13 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('auth/test')
-  test(@Request() req) {
+  test(@Req() req) {
     return req.user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('auth/login')
-  async registUser(@Request() req) {
+  async registUser(@Req() req) {
     const { user_email, user_nick, user_provider, user_token } = req.user;
     const { user_tel, user_privacy } = req.body;
     // 1회용 토큰인경우
@@ -69,7 +69,9 @@ export class UsersController {
         })
         .execute();
       const user = await this.authService.validateUser(user_email);
-      return this.authService.createLoginToken(user);
+      await this.authService.createLoginToken(user);
+      await this.authService.createRefreshToken(user);
+      return { success: true, message: 'user login successful' };
     }
     // 그 외의 경우
     return false;
