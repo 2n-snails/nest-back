@@ -56,7 +56,7 @@ export class ProductController {
   }
 
   // 추천 상품
-  @Get(':product-id/recommend')
+  @Get(':product_id/recommend')
   recommendProduct(@Param() param: ProductIdParam) {
     return 'recommend products';
   }
@@ -165,7 +165,7 @@ export class ProductController {
   }
 
   // 판매자 번호 보내주기
-  @Get(':product_id/seller-num')
+  @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
     return await this.productService.findSellerPhoneNum(param.product_id);
   }
