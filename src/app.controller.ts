@@ -1,3 +1,4 @@
+import { FindMainPageDataDTO } from './dto/findMainPageData.dto';
 import { Body, Controller, Get, Req, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
@@ -7,8 +8,8 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
   @Get('main')
-  async mainPageData(@Query() query) {
-    const { sort, limit, page } = query;
+  async mainPageData(@Query() findMainPageDataDTO: FindMainPageDataDTO) {
+    const { sort, limit, page } = findMainPageDataDTO;
     const mainData = await this.appService.getMainPageData(sort, limit, page);
     return mainData;
   }
