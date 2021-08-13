@@ -35,17 +35,19 @@ export class AuthService {
   async createRefreshToken(user: User) {
     const payload = {
       user_no: user.user_no,
-      user_token: 'loginToken',
+      user_token: 'refreshToken',
     };
 
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
       expiresIn: '50m',
     });
+
     const refresh_token = CryptoJS.AES.encrypt(
       JSON.stringify(token),
       process.env.AES_KEY,
     ).toString();
+
     await getConnection()
       .createQueryBuilder()
       .update(User)
@@ -69,5 +71,11 @@ export class AuthService {
         expiresIn: '10m',
       }),
     };
+  }
+
+  async tokenValidate(token: string) {
+    return await this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
   }
 }
