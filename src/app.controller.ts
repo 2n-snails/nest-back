@@ -1,3 +1,4 @@
+import { SearchProductDTO } from './dto/searchProduct.dto';
 import { FindMainPageDataDTO } from './dto/findMainPageData.dto';
 import { Body, Controller, Get, Req, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -15,7 +16,7 @@ export class AppController {
   }
 
   @Post('search')
-  async searchProduct(@Req() req, @Body() data) {
-    return this.appService.productSearch(data);
+  async searchProduct(@Req() req, @Body() searchProductDTO: SearchProductDTO) {
+    return this.appService.productSearch(searchProductDTO);
   }
 }

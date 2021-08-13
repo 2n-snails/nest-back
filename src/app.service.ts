@@ -1,3 +1,4 @@
+import { SearchProductDTO } from './dto/searchProduct.dto';
 import { Injectable } from '@nestjs/common';
 import { getConnection, getRepository } from 'typeorm';
 import { Notice } from './entity/notice.entity';
@@ -26,8 +27,8 @@ export class AppService {
       .execute();
   }
 
-  async productSearch(data) {
-    const { search } = data;
+  async productSearch(searchProductDTO: SearchProductDTO) {
+    const { search } = searchProductDTO;
     const resultByTitle = await getRepository(Product)
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.images', 'image')
