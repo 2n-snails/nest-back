@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import CryptoJS from 'crypto-js';
 import { User } from 'src/entity/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { getRepository } from 'typeorm';
 import { AuthService } from '../auth.service';
 
@@ -16,6 +17,7 @@ export class JwtRefreshGuard extends AuthGuard('jwt') {
   constructor(
     private jwtService: JwtService,
     private authService: AuthService,
+    private userService: UsersService,
   ) {
     super();
   }
@@ -46,19 +48,12 @@ export class JwtRefreshGuard extends AuthGuard('jwt') {
       const bytes = CryptoJS.AES.decrypt(refreshToken, process.env.AES_KEY);
       const token = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
-      const token_verify = await this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
+      const token_verify = await this.authService.tokenValidate(token);
 
-      const user = await getRepository(User)
-        .createQueryBuilder()
-        .select()
-        .where(`user_no = ${token_verify.user_no}`)
-        .getOne();
+      const user = await this.userService.findUserById(token_verify.user_no);
 
       if (user.user_refresh_token === token) {
-        const access_token = await this.authService.createLoginToken(user);
-        return access_token;
+        return await this.authService.createLoginToken(user);
       } else {
         throw new Error('no permission');
       }
