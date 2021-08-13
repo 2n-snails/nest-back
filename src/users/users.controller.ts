@@ -7,6 +7,7 @@ import { KakaoAuthGuard } from 'src/auth/guard/kakao-auth.guard';
 import { Post } from '@nestjs/common';
 import { getConnection } from 'typeorm';
 import { User } from 'src/entity/user.entity';
+import { JwtRefreshGuard } from 'src/auth/guard/jwt-refreshToken-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -75,5 +76,11 @@ export class UsersController {
     }
     // 그 외의 경우
     return false;
+  }
+  // 리프레쉬 토큰을 이용한 엑세스 토큰 재발급하기
+  @UseGuards(JwtRefreshGuard)
+  @Get('auth/refresh-accesstoken')
+  async refreshAccessToken() {
+    return { success: true, message: 'new accessToken Issuance success' };
   }
 }
