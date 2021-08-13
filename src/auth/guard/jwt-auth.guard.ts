@@ -31,11 +31,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const tokenValidate = await this.validate(token);
     if (tokenValidate.tokenReissue) {
       response.setHeader('access_token', tokenValidate.new_token);
-      response.setHeader('tokenReissue', tokenValidate.tokenReissue);
+      response.setHeader('tokenReissue', true);
     } else {
-      response.setHeader('tokenReissue', tokenValidate.tokenReissue);
+      response.setHeader('tokenReissue', false);
     }
-    request.user = tokenValidate.user;
+    request.user = tokenValidate.user ? tokenValidate.user : tokenValidate;
     return true;
   }
 
@@ -53,18 +53,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         (tokenExp.getTime() - current_time.getTime()) / 1000 / 60,
       );
 
-      if (time_remaining < 5) {
-        // 남은 시간이 5분 미만일때
-        const user = await this.userService.findUserById(token_verify.user_no);
-        const new_token = await this.authService.createLoginToken(user);
-        return {
-          user,
-          new_token,
-          tokenReissue: true,
-        };
-      } else {
-        // 남은 시간이 5분 이상일때
-        if (token_verify.user_token === 'loginToken') {
+      if (token_verify.user_token === 'loginToken') {
+        if (time_remaining < 5) {
+          // 로그인 토큰의남은 시간이 5분 미만일때
+          const user = await this.userService.findUserById(
+            token_verify.user_no,
+          );
+          const new_token = await this.authService.createLoginToken(user);
+          return {
+            user,
+            new_token,
+            tokenReissue: true,
+          };
+        } else {
+          // 로그인 토큰의남은 시간이 5분 이상일때
           const user = await this.userService.findUserById(
             token_verify.user_no,
           );
@@ -72,10 +74,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             user,
             tokenReissue: false,
           };
-        } else {
-          // 헤더의 토큰이 onceToken일때는 그냥 토큰을 그냥 리턴(회원가입을 위한 유저 정보가 담겨있음)
-          return token_verify;
         }
+      } else {
+        return token_verify;
       }
     } catch (error) {
       switch (error.message) {
