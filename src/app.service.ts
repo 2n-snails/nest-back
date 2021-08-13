@@ -120,7 +120,10 @@ export class AppService {
   }
 
   async getMainPageData(sort, limit, page) {
-    const count = await getRepository(Product).count();
+    const count = await getRepository(Product)
+      .createQueryBuilder()
+      .where(`deleted = 'N'`)
+      .getCount();
     const totalPage = Math.ceil(count / limit);
     if (page <= totalPage && page > 0) {
       const sortQuery = await getRepository(Product)
@@ -130,6 +133,7 @@ export class AppService {
           'COUNT(wish.wish_product_no) as wishCount',
         ])
         .leftJoin('p.wishes', 'wish')
+        .where(`p.deleted = 'N'`)
         .groupBy('p.product_no')
         .addGroupBy('wish.wish_product_no');
       if (sort === 'createdAt') {
