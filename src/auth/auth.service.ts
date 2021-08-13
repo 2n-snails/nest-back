@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/entity/user.entity';
 import { UsersService } from 'src/users/users.service';
 import CryptoJS from 'crypto-js';
+import { getConnection } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +46,12 @@ export class AuthService {
       JSON.stringify(token),
       process.env.AES_KEY,
     ).toString();
-
+    await getConnection()
+      .createQueryBuilder()
+      .update(User)
+      .set({ user_refresh_token: token })
+      .where(`user_no = ${user.user_no}`)
+      .execute();
     return refresh_token;
   }
 
