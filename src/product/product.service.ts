@@ -1,3 +1,4 @@
+import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -288,11 +289,11 @@ export class ProductService {
       .getRawOne();
   }
 
-  async updateProduct(data: any, product_no: any) {
+  async updateProduct(updateProdcutDTO: UpdateProdcutDTO, product_no: any) {
     // 상품 테이블 정보 업데이트
-    const { product_title, product_content, product_price } = data;
-    const image = data.images;
-    const productCategories = data.productCategories;
+    const { product_title, product_content, product_price } = updateProdcutDTO;
+    const image = updateProdcutDTO.images;
+    const productCategories = updateProdcutDTO.productCategories;
     const result = await this.productRepository
       .createQueryBuilder()
       .update()

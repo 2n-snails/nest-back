@@ -1,3 +1,4 @@
+import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import { ProductIdParam } from './dto/productIdParam.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -174,7 +175,7 @@ export class ProductController {
   @Put(':product_id/update')
   async productInfoUpdate(
     @Req() req,
-    @Body() data,
+    @Body() updateProdcutDTO: UpdateProdcutDTO,
     @Param() param: ProductIdParam,
   ) {
     const { user_no } = req.user;
@@ -183,7 +184,10 @@ export class ProductController {
     );
     const productUpdate =
       result.user_no === user_no
-        ? await this.productService.updateProduct(data, param.product_id)
+        ? await this.productService.updateProduct(
+            updateProdcutDTO,
+            param.product_id,
+          )
         : {
             success: false,
             message: 'You do not have permission to edit this product',
