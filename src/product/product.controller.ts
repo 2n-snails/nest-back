@@ -1,7 +1,7 @@
 import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import { ProductIdParam } from './dto/productIdParam.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -32,6 +32,7 @@ export class ProductController {
     private readonly appService: AppService,
   ) {}
   // 상품 업로드
+  @ApiBearerAuth('access-token')
   @Roles(userLevel.MEMBER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
@@ -70,6 +71,7 @@ export class ProductController {
   }
 
   // 상품 댓글 작성
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/comment')
   async writeComment(
@@ -102,6 +104,7 @@ export class ProductController {
   }
 
   // 대댓글 작성
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/recomment')
   async writeReComment(
@@ -143,6 +146,7 @@ export class ProductController {
   }
 
   // 찜하기
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/wish')
   async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
@@ -179,6 +183,7 @@ export class ProductController {
   }
 
   // 상품 수정
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Put(':product_id/update')
   async productInfoUpdate(
@@ -210,6 +215,7 @@ export class ProductController {
   }
 
   // 상품 삭제
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id')
   async deleteProduct(@Req() req: any, @Param() param: ProductIdParam) {
@@ -238,6 +244,7 @@ export class ProductController {
   }
 
   // 찜 취소하기
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id/wish')
   async wishCancleProduct(@Req() req: any, @Param() param: ProductIdParam) {
