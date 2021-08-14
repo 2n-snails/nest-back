@@ -22,6 +22,7 @@ import { ProductService } from './product.service';
 import { AppService } from 'src/app.service';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
 import { AddressCity } from 'src/entity/address_city.entity';
+import { Category } from 'src/entity/category.entity';
 
 @ApiTags('product')
 @Controller('product')
@@ -54,6 +55,12 @@ export class ProductController {
   @Get('address')
   async findAllAddress(): Promise<AddressCity[]> {
     return await this.productService.getAllAddress();
+  }
+
+  // 카테고리 받아오기
+  @Get('category')
+  async findAllCategory(): Promise<Category[]> {
+    return await this.productService.getAllCategory();
   }
 
   // 추천 상품

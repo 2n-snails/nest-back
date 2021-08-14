@@ -433,4 +433,12 @@ export class ProductService {
       .getMany();
     return result;
   }
+
+  async getAllCategory(): Promise<Category[]> {
+    const result = await getRepository(Category)
+      .createQueryBuilder('category')
+      .select(['category.category_name'])
+      .getMany();
+    return result;
+  }
 }
