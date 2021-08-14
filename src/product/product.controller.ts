@@ -107,8 +107,23 @@ export class ProductController {
     return 'recommend products';
   }
 
-  // 상품 댓글 작성
   @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 댓글 작성',
+    description: '상품댓글을 작성하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/comment')
   async writeComment(
