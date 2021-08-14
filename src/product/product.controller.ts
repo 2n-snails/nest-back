@@ -85,7 +85,14 @@ export class ProductController {
     return await this.productService.getAllAddress();
   }
 
-  // 카테고리 받아오기
+  @ApiOperation({
+    summary: '카테고리 가져오기',
+    description: '카테고리를 가져오는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
   @Get('category')
   async findAllCategory(): Promise<Category[]> {
     return await this.productService.getAllCategory();
