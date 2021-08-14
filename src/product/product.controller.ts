@@ -212,8 +212,23 @@ export class ProductController {
     return 'report a product';
   }
 
-  // 찜하기
   @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 찜 하기',
+    description: '상품을 찜 하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/wish')
   async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
