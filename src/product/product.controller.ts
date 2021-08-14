@@ -276,8 +276,23 @@ export class ProductController {
     return await this.productService.findSellerPhoneNum(param.product_id);
   }
 
-  // 상품 수정
   @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 수정 하기',
+    description: '상품을 수정하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Put(':product_id/update')
   async productInfoUpdate(
