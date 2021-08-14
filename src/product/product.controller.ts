@@ -378,8 +378,23 @@ export class ProductController {
     };
   }
 
-  // 찜 취소하기
   @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 찜 취소하기',
+    description: '상품 찜을 취소하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id/wish')
   async wishCancleProduct(@Req() req: any, @Param() param: ProductIdParam) {
