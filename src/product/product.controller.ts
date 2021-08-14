@@ -1,7 +1,14 @@
 import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import { ProductIdParam } from './dto/productIdParam.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -29,8 +36,24 @@ export class ProductController {
     private readonly productService: ProductService,
     private readonly appService: AppService,
   ) {}
-  // 상품 업로드
+
   @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 업로드',
+    description: '상품을 업로드 하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   async productUpload(
