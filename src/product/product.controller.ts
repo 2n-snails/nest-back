@@ -334,8 +334,23 @@ export class ProductController {
     return this.productService.findOne(param.product_id);
   }
 
-  // 상품 삭제
   @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 삭제 하기',
+    description: '상품을 삭제하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id')
   async deleteProduct(@Req() req: any, @Param() param: ProductIdParam) {
