@@ -1,4 +1,11 @@
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { NaverAuthGuard } from '../auth/guard/naver-auth.guard';
@@ -69,6 +76,23 @@ export class UsersController {
     res.end();
   }
 
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '회원가입',
+    description: '회원가입 하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('auth/login')
   async registUser(@Request() req: any, @Body() registUserDTO: RegistUserDTO) {
