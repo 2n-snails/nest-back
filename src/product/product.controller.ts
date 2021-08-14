@@ -72,7 +72,14 @@ export class ProductController {
     }
   }
 
-  // 상품 거래 지역 받아오기
+  @ApiOperation({
+    summary: '거래 지역 가져오기',
+    description: '거래 지역을 가져오는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
   @Get('address')
   async findAllAddress(): Promise<AddressCity[]> {
     return await this.productService.getAllAddress();
