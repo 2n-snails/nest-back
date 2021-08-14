@@ -258,7 +258,19 @@ export class ProductController {
     };
   }
 
-  // 판매자 번호 보내주기
+  @ApiOperation({
+    summary: '판매자 번호 보내주기',
+    description: '판매자 번호를 보내주는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
+  @UseGuards(JwtAuthGuard)
   @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
     return await this.productService.findSellerPhoneNum(param.product_id);
