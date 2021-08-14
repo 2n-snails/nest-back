@@ -74,7 +74,6 @@ export class MypageController {
   }
 
   // 유저에게 달린 리뷰 목록
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: `User's Review list`,
     description: `Get a list of user review`,
