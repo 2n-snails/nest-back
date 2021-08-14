@@ -21,6 +21,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 import { AppService } from 'src/app.service';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
+import { AddressCity } from 'src/entity/address_city.entity';
 
 @ApiTags('product')
 @Controller('product')
@@ -49,10 +50,10 @@ export class ProductController {
     }
   }
 
-  // 상품 상세 정보
-  @Get(':product_id')
-  productInfo(@Param() param: ProductIdParam) {
-    return this.productService.findOne(param.product_id);
+  // 상품 거래 지역 받아오기
+  @Get('address')
+  async findAllAddress(): Promise<AddressCity[]> {
+    return await this.productService.getAllAddress();
   }
 
   // 추천 상품
@@ -193,6 +194,12 @@ export class ProductController {
             message: 'You do not have permission to edit this product',
           };
     return productUpdate;
+  }
+
+  // 상품 상세 정보
+  @Get(':product_id')
+  productInfo(@Param() param: ProductIdParam) {
+    return this.productService.findOne(param.product_id);
   }
 
   // 상품 삭제
