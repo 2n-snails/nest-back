@@ -14,8 +14,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
@@ -33,8 +31,7 @@ export class ProductController {
   ) {}
   // 상품 업로드
   @ApiBearerAuth('access-token')
-  @Roles(userLevel.MEMBER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('upload')
   async productUpload(
     @Body() createdProductDTO: CreatedProductDTO,
