@@ -317,7 +317,18 @@ export class ProductController {
     return productUpdate;
   }
 
-  // 상품 상세 정보
+  @ApiOperation({
+    summary: '상품 상세 정보',
+    description: '상품 상세 정보를 보내주는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
   @Get(':product_id')
   productInfo(@Param() param: ProductIdParam) {
     return this.productService.findOne(param.product_id);
