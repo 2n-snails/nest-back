@@ -98,7 +98,10 @@ export class ProductController {
     return await this.productService.getAllCategory();
   }
 
-  // 추천 상품
+  @ApiOperation({
+    summary: '추천상품 가져오기',
+    description: '추천상품을 가져오는 API입니다. (미개발, 차후 개발 예정)',
+  })
   @Get(':product_id/recommend')
   recommendProduct(@Param() param: ProductIdParam) {
     return 'recommend products';
