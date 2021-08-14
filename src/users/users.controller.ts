@@ -70,12 +70,6 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('auth/test')
-  test(@Request() req) {
-    return req.user;
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post('auth/login')
   async registUser(@Request() req: any, @Body() registUserDTO: RegistUserDTO) {
     const { user_email, user_nick, user_provider, user_token } = req.user;
