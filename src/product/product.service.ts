@@ -1,3 +1,4 @@
+import { AddressCity } from './../entity/address_city.entity';
 import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -422,5 +423,22 @@ export class ProductService {
       .where(`pc.product_no = ${product_no}`)
       .andWhere('pc.deleted = :value', { value: 'N' })
       .getRawMany();
+  }
+
+  async getAllAddress(): Promise<AddressCity[]> {
+    const result = await getRepository(AddressCity)
+      .createQueryBuilder('city')
+      .leftJoinAndSelect('city.addressAreas', 'area')
+      .select(['city.city_name', 'area.area_name'])
+      .getMany();
+    return result;
+  }
+
+  async getAllCategory(): Promise<Category[]> {
+    const result = await getRepository(Category)
+      .createQueryBuilder('category')
+      .select(['category.category_name'])
+      .getMany();
+    return result;
   }
 }

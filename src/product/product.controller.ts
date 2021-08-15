@@ -21,6 +21,8 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 import { AppService } from 'src/app.service';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
+import { AddressCity } from 'src/entity/address_city.entity';
+import { Category } from 'src/entity/category.entity';
 
 @ApiTags('product')
 @Controller('product')
@@ -49,14 +51,20 @@ export class ProductController {
     }
   }
 
-  // 상품 상세 정보
-  @Get(':product_id')
-  productInfo(@Param() param: ProductIdParam) {
-    return this.productService.findOne(param.product_id);
+  // 상품 거래 지역 받아오기
+  @Get('address')
+  async findAllAddress(): Promise<AddressCity[]> {
+    return await this.productService.getAllAddress();
+  }
+
+  // 카테고리 받아오기
+  @Get('category')
+  async findAllCategory(): Promise<Category[]> {
+    return await this.productService.getAllCategory();
   }
 
   // 추천 상품
-  @Get(':product-id/recommend')
+  @Get(':product_id/recommend')
   recommendProduct(@Param() param: ProductIdParam) {
     return 'recommend products';
   }
@@ -165,7 +173,7 @@ export class ProductController {
   }
 
   // 판매자 번호 보내주기
-  @Get(':product_id/seller-num')
+  @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
     return await this.productService.findSellerPhoneNum(param.product_id);
   }
@@ -193,6 +201,12 @@ export class ProductController {
             message: 'You do not have permission to edit this product',
           };
     return productUpdate;
+  }
+
+  // 상품 상세 정보
+  @Get(':product_id')
+  productInfo(@Param() param: ProductIdParam) {
+    return this.productService.findOne(param.product_id);
   }
 
   // 상품 삭제
