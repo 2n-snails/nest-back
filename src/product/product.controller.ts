@@ -1,7 +1,14 @@
 import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import { ProductIdParam } from './dto/productIdParam.dto';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -14,8 +21,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Roles, userLevel } from 'src/auth/decorator/roles.decorator';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
@@ -31,9 +36,25 @@ export class ProductController {
     private readonly productService: ProductService,
     private readonly appService: AppService,
   ) {}
-  // 상품 업로드
-  @Roles(userLevel.MEMBER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 업로드',
+    description: '상품을 업로드 하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
+  @UseGuards(JwtAuthGuard)
   @Post('upload')
   async productUpload(
     @Body() createdProductDTO: CreatedProductDTO,
@@ -51,25 +72,58 @@ export class ProductController {
     }
   }
 
-  // 상품 거래 지역 받아오기
+  @ApiOperation({
+    summary: '거래 지역 가져오기',
+    description: '거래 지역을 가져오는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
   @Get('address')
   async findAllAddress(): Promise<AddressCity[]> {
     return await this.productService.getAllAddress();
   }
 
-  // 카테고리 받아오기
+  @ApiOperation({
+    summary: '카테고리 가져오기',
+    description: '카테고리를 가져오는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
   @Get('category')
   async findAllCategory(): Promise<Category[]> {
     return await this.productService.getAllCategory();
   }
 
-  // 추천 상품
+  @ApiOperation({
+    summary: '추천상품 가져오기',
+    description: '추천상품을 가져오는 API입니다. (미개발, 차후 개발 예정)',
+  })
   @Get(':product_id/recommend')
   recommendProduct(@Param() param: ProductIdParam) {
     return 'recommend products';
   }
 
-  // 상품 댓글 작성
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 댓글 작성',
+    description: '상품댓글을 작성하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/comment')
   async writeComment(
@@ -101,7 +155,23 @@ export class ProductController {
     throw new InternalServerErrorException();
   }
 
-  // 대댓글 작성
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 대댓글 작성',
+    description: '상품 대댓글을 작성하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/recomment')
   async writeReComment(
@@ -142,7 +212,23 @@ export class ProductController {
     return 'report a product';
   }
 
-  // 찜하기
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 찜 하기',
+    description: '상품을 찜 하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/wish')
   async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
@@ -172,13 +258,45 @@ export class ProductController {
     };
   }
 
-  // 판매자 번호 보내주기
+  @ApiOperation({
+    summary: '판매자 번호 보내주기',
+    description: '판매자 번호를 보내주는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
+  @UseGuards(JwtAuthGuard)
   @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
     return await this.productService.findSellerPhoneNum(param.product_id);
   }
 
-  // 상품 수정
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 수정 하기',
+    description: '상품을 수정하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Put(':product_id/update')
   async productInfoUpdate(
@@ -203,13 +321,40 @@ export class ProductController {
     return productUpdate;
   }
 
-  // 상품 상세 정보
+  @ApiOperation({
+    summary: '상품 상세 정보',
+    description: '상품 상세 정보를 보내주는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
   @Get(':product_id')
   productInfo(@Param() param: ProductIdParam) {
     return this.productService.findOne(param.product_id);
   }
 
-  // 상품 삭제
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 삭제 하기',
+    description: '상품을 삭제하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id')
   async deleteProduct(@Req() req: any, @Param() param: ProductIdParam) {
@@ -237,7 +382,23 @@ export class ProductController {
     };
   }
 
-  // 찜 취소하기
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '상품 찜 취소하기',
+    description: '상품 찜을 취소하는 API입니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '정상 요청',
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    description: '잘못된 정보 요청',
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    description: '토큰 에러',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete(':product_id/wish')
   async wishCancleProduct(@Req() req: any, @Param() param: ProductIdParam) {
