@@ -2,12 +2,21 @@ import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { NaverAuthGuard } from '../auth/guard/naver-auth.guard';
-import { Controller, Get, Req, Request, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Req,
+  Request,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao-auth.guard';
 import { Post } from '@nestjs/common';
 import { getConnection } from 'typeorm';
 import { User } from 'src/entity/user.entity';
+import { RegistUserDTO } from './dto/registUser.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -52,9 +61,9 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Post('auth/login')
-  async registUser(@Request() req) {
+  async registUser(@Request() req: any, @Body() registUserDTO: RegistUserDTO) {
     const { user_email, user_nick, user_provider, user_token } = req.user;
-    const { user_tel, user_privacy } = req.body;
+    const { user_tel, user_privacy } = registUserDTO;
     // 1회용 토큰인경우
     if (user_token === 'onceToken') {
       await getConnection()
