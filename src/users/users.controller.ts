@@ -1,3 +1,4 @@
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { NaverAuthGuard } from '../auth/guard/naver-auth.guard';
@@ -8,6 +9,7 @@ import { Post } from '@nestjs/common';
 import { getConnection } from 'typeorm';
 import { User } from 'src/entity/user.entity';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly authService: AuthService) {}

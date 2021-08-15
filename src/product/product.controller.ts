@@ -1,3 +1,4 @@
+import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 import { AppService } from 'src/app.service';
 
+@ApiTags('product')
 @Controller('product')
 export class ProductController {
   constructor(
