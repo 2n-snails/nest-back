@@ -50,10 +50,9 @@ export class UsersController {
   async callback(@Req() req, @Res() res: Response): Promise<any> {
     res.cookie('access_token', req.user.access_token);
     res.cookie('refresh_token', req.user.refresh_token);
-    res.send('OK');
+    res.redirect('http://localhost:3000/auth/singup');
     res.end();
     // 리다이렉트 해주는 페이지
-    // res.redirect('http://localhost:3000/login');
   }
 
   @ApiOperation({
@@ -75,7 +74,7 @@ export class UsersController {
   async kakaocallback(@Req() req, @Res() res: Response) {
     res.cookie('access_token', req.user.access_token);
     res.cookie('refresh_token', req.user.refresh_token);
-    res.send('OK');
+    res.redirect('http://localhost:3000/auth/singup');
     res.end();
   }
 
