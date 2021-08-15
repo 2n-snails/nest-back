@@ -14,18 +14,6 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @ApiOperation({
-    summary: '메인 페이지',
-    description: '메인 페이지를 보여주는 API입니다.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: '정상 요청',
-  })
-  @ApiBadRequestResponse({
-    status: 400,
-    description: '잘못된 정보 요청',
-  })
   @Get('main')
   async mainPageData(@Query() findMainPageDataDTO: FindMainPageDataDTO) {
     const { sort, limit, page } = findMainPageDataDTO;

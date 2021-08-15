@@ -34,6 +34,8 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
 
     // 유저가 있을때
     console.log('로그인 토큰 발급');
-    return this.authService.loginToken(user);
+    const access_token = await this.authService.createLoginToken(user);
+    const refresh_token = await this.authService.createRefreshToken(user);
+    return { access_token, refresh_token };
   }
 }

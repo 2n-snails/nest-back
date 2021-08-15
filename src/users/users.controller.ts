@@ -23,6 +23,7 @@ import { KakaoAuthGuard } from 'src/auth/guard/kakao-auth.guard';
 import { Post } from '@nestjs/common';
 import { getConnection } from 'typeorm';
 import { User } from 'src/entity/user.entity';
+import { JwtRefreshGuard } from 'src/auth/guard/jwt-refreshToken-auth.guard';
 import { RegistUserDTO } from './dto/registUser.dto';
 
 @ApiTags('users')
@@ -47,7 +48,8 @@ export class UsersController {
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
   async callback(@Req() req, @Res() res: Response): Promise<any> {
-    res.header('jwt_token', req.user.access_token);
+    res.header('access_token', req.user.access_token);
+    res.header('refresh_token', req.user.refresh_token);
     res.send('OK');
     res.end();
     // 리다이렉트 해주는 페이지
@@ -71,7 +73,8 @@ export class UsersController {
   @UseGuards(KakaoAuthGuard)
   @Get('auth/kakao/callback')
   async kakaocallback(@Req() req, @Res() res: Response) {
-    res.header('jwt_token', req.user.access_token);
+    res.header('access_token', req.user.access_token);
+    res.header('refresh_token', req.user.refresh_token);
     res.send('OK');
     res.end();
   }
@@ -113,9 +116,17 @@ export class UsersController {
         })
         .execute();
       const user = await this.authService.validateUser(user_email);
-      return this.authService.loginToken(user);
+      await this.authService.createLoginToken(user);
+      await this.authService.createRefreshToken(user);
+      return { success: true, message: 'user login successful' };
     }
     // 그 외의 경우
     return false;
+  }
+  // 리프레쉬 토큰을 이용한 엑세스 토큰 재발급하기
+  @UseGuards(JwtRefreshGuard)
+  @Get('auth/refresh-accesstoken')
+  async refreshAccessToken() {
+    return { success: true, message: 'new accessToken Issuance success' };
   }
 }

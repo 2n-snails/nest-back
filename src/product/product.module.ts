@@ -9,6 +9,8 @@ import { ProductCategory } from 'src/entity/product_category.entity';
 import { Comment } from 'src/entity/comment.entity';
 import { ReComment } from 'src/entity/recomment.entity';
 import { AppModule } from 'src/app.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { AppModule } from 'src/app.module';
       ProductCategory,
     ]),
     forwardRef(() => AppModule),
+    AuthModule,
+    UsersModule,
   ],
   providers: [ProductService],
   controllers: [ProductController],
