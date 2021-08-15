@@ -48,8 +48,8 @@ export class UsersController {
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
   async callback(@Req() req, @Res() res: Response): Promise<any> {
-    res.header('access_token', req.user.access_token);
-    res.header('refresh_token', req.user.refresh_token);
+    res.cookie('access_token', req.user.access_token);
+    res.cookie('refresh_token', req.user.refresh_token);
     res.send('OK');
     res.end();
     // 리다이렉트 해주는 페이지
@@ -73,8 +73,8 @@ export class UsersController {
   @UseGuards(KakaoAuthGuard)
   @Get('auth/kakao/callback')
   async kakaocallback(@Req() req, @Res() res: Response) {
-    res.header('access_token', req.user.access_token);
-    res.header('refresh_token', req.user.refresh_token);
+    res.cookie('access_token', req.user.access_token);
+    res.cookie('refresh_token', req.user.refresh_token);
     res.send('OK');
     res.end();
   }
