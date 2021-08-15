@@ -1,3 +1,6 @@
+import { AddressCity } from './../entity/address_city.entity';
+import { UpdateProdcutDTO } from './dto/updateProduct.dto';
+import { CreatedCommentDTO } from './dto/createComment.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatedProductDTO } from './dto/createProduct.dto';
@@ -15,7 +18,7 @@ import { Wish } from 'src/entity/wish.entity';
 import { Category } from 'src/entity/category.entity';
 import { Image } from 'src/entity/image.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
-import { timeStamp } from 'console';
+import { CreateReCommentDTO } from './dto/createReComment.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -43,7 +46,10 @@ export class ProductService {
     });
   }
 
-  async createProduct(data: CreatedProductDTO, user): Promise<boolean> {
+  async createProduct(
+    createdProductDTO: CreatedProductDTO,
+    user,
+  ): Promise<boolean> {
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -51,7 +57,8 @@ export class ProductService {
 
     try {
       // 상품 업로드
-      const { product_title, product_content, product_price } = data;
+      const { product_title, product_content, product_price } =
+        createdProductDTO;
       const product = await this.productRepository.create({
         product_title,
         product_content,
@@ -61,9 +68,9 @@ export class ProductService {
       await queryRunner.manager.save(product);
 
       // 상품 이미지 업로드
-      for (let i = 0; i < data.images.length; i++) {
+      for (let i = 0; i < createdProductDTO.images.length; i++) {
         const image = await this.imageRepository.create({
-          image_src: data.images[i],
+          image_src: createdProductDTO.images[i],
           image_order: i + 1,
         });
         image.product = product;
@@ -71,9 +78,9 @@ export class ProductService {
       }
 
       // 상품 카테고리 업로드
-      for (let i = 0; i < data.productCategories.length; i++) {
+      for (let i = 0; i < createdProductDTO.productCategories.length; i++) {
         const category = await this.categoryRepository.findOne({
-          category_name: Like(`${data.productCategories[i]}`),
+          category_name: Like(`${createdProductDTO.productCategories[i]}`),
         });
         const newProductCategory = await this.productCategoryRepository.create({
           product,
@@ -162,7 +169,7 @@ export class ProductService {
     });
   }
 
-  async createComment(user, data, product) {
+  async createComment(user, createdCommentDTO: CreatedCommentDTO, product) {
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -170,7 +177,7 @@ export class ProductService {
 
     try {
       // 댓글 작성
-      const { comment_content } = data;
+      const { comment_content } = createdCommentDTO;
       const comment = await this.commentRepository.create({ comment_content });
       comment.product = product;
       comment.user = user;
@@ -188,7 +195,12 @@ export class ProductService {
     }
   }
 
-  async createReComment(user, comment, data, id) {
+  async createReComment(
+    user,
+    comment,
+    createReCommentDto: CreateReCommentDTO,
+    id,
+  ) {
     // id 는 알림생성에 사용할 예정이라 아직은 사용하지 않습니다.
     let result = true;
     const queryRunner = this.connection.createQueryRunner();
@@ -197,7 +209,7 @@ export class ProductService {
 
     try {
       // 대댓글 작성
-      const { recomment_content } = data;
+      const { recomment_content } = createReCommentDto;
       const reComment = this.reCommentRepository.create({ recomment_content });
       reComment.comment = comment;
       reComment.user = user;
@@ -278,11 +290,11 @@ export class ProductService {
       .getRawOne();
   }
 
-  async updateProduct(data: any, product_no: any) {
+  async updateProduct(updateProdcutDTO: UpdateProdcutDTO, product_no: any) {
     // 상품 테이블 정보 업데이트
-    const { product_title, product_content, product_price } = data;
-    const image = data.images;
-    const productCategories = data.productCategories;
+    const { product_title, product_content, product_price } = updateProdcutDTO;
+    const image = updateProdcutDTO.images;
+    const productCategories = updateProdcutDTO.productCategories;
     const result = await this.productRepository
       .createQueryBuilder()
       .update()
@@ -411,5 +423,22 @@ export class ProductService {
       .where(`pc.product_no = ${product_no}`)
       .andWhere('pc.deleted = :value', { value: 'N' })
       .getRawMany();
+  }
+
+  async getAllAddress(): Promise<AddressCity[]> {
+    const result = await getRepository(AddressCity)
+      .createQueryBuilder('city')
+      .leftJoinAndSelect('city.addressAreas', 'area')
+      .select(['city.city_name', 'area.area_name'])
+      .getMany();
+    return result;
+  }
+
+  async getAllCategory(): Promise<Category[]> {
+    const result = await getRepository(Category)
+      .createQueryBuilder('category')
+      .select(['category.category_name'])
+      .getMany();
+    return result;
   }
 }

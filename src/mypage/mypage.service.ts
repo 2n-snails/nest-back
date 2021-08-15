@@ -6,12 +6,11 @@ import { getRepository } from 'typeorm';
 @Injectable()
 export class MypageService {
   // 유저 닉네임 수정하기
-  async userNickUpdate(data, user_no) {
-    const { user_nick } = data;
+  async userNickUpdate(userNick, user_no) {
     try {
       const result = await getRepository(User)
         .createQueryBuilder()
-        .update(User, { user_nick: user_nick })
+        .update(User, { user_nick: userNick })
         .returning('*')
         .where(`user_no = ${user_no}`)
         .updateEntity(true)
@@ -26,7 +25,7 @@ export class MypageService {
     }
   }
   // 유저 찜 목록
-  async findUserWish(user_id) {
+  async findUserWish(user_id): Promise<User[]> {
     const result = await getRepository(User)
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.wishes', 'wish')
@@ -83,7 +82,7 @@ export class MypageService {
   }
 
   // 유저의 판매중인 상품
-  async findUserProduct(user_id: number) {
+  async findUserProduct(user_id: number): Promise<User[]> {
     const result = await getRepository(User)
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.products', 'p')
@@ -133,7 +132,7 @@ export class MypageService {
     return result;
   }
 
-  async findUserReview(user_id: number) {
+  async findUserReview(user_id: number): Promise<User[]> {
     const result = await getRepository(User)
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.review_receiver', 'review')
@@ -153,7 +152,7 @@ export class MypageService {
     return result;
   }
 
-  async findMyInfo(user_id: number) {
+  async findMyInfo(user_id: number): Promise<User> {
     const result = await getRepository(User)
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.review_receiver', 'review')
