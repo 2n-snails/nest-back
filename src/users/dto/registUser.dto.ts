@@ -1,9 +1,4 @@
-import {
-  IsBooleanString,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class RegistUserDTO {
   @IsString()
@@ -13,7 +8,7 @@ export class RegistUserDTO {
   @IsNotEmpty()
   user_tel: string;
 
-  @IsBooleanString({
+  @IsBoolean({
     message: 'true 또는 false의 값만 들어올수 있습니다.',
   })
   @IsNotEmpty()
