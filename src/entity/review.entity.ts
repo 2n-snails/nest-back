@@ -22,7 +22,7 @@ export class Review {
   @Column({ type: 'integer' })
   review_score: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @Column({
