@@ -48,8 +48,12 @@ export class UsersController {
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
   async callback(@Req() req, @Res() res: Response): Promise<any> {
-    res.cookie('access_token', req.user.access_token);
-    res.cookie('refresh_token', req.user.refresh_token);
+    if (req.user.type === 'login') {
+      res.cookie('access_token', req.user.access_token);
+      res.cookie('refresh_token', req.user.refresh_token);
+    } else {
+      res.cookie('once_token', req.user.once_token);
+    }
     res.redirect('http://localhost:3000/auth/singup');
     res.end();
     // 리다이렉트 해주는 페이지
@@ -72,8 +76,12 @@ export class UsersController {
   @UseGuards(KakaoAuthGuard)
   @Get('auth/kakao/callback')
   async kakaocallback(@Req() req, @Res() res: Response) {
-    res.cookie('access_token', req.user.access_token);
-    res.cookie('refresh_token', req.user.refresh_token);
+    if (req.user.type === 'login') {
+      res.cookie('access_token', req.user.access_token);
+      res.cookie('refresh_token', req.user.refresh_token);
+    } else {
+      res.cookie('once_token', req.user.once_token);
+    }
     res.redirect('http://localhost:3000/auth/singup');
     res.end();
   }
@@ -97,7 +105,11 @@ export class UsersController {
   })
   @UseGuards(JwtAuthGuard)
   @Post('auth/login')
-  async registUser(@Request() req: any, @Body() registUserDTO: RegistUserDTO) {
+  async registUser(
+    @Request() req: any,
+    @Body() registUserDTO: RegistUserDTO,
+    @Res() res: Response,
+  ) {
     try {
       const { user_email, user_nick, user_provider, user_token } = req.user;
       const { user_tel, user_privacy } = registUserDTO;
@@ -116,9 +128,12 @@ export class UsersController {
           })
           .execute();
         const user = await this.authService.validateUser(user_email);
-        await this.authService.createLoginToken(user);
-        await this.authService.createRefreshToken(user);
-        return { success: true, message: 'user login successful' };
+        const access_token = await this.authService.createLoginToken(user);
+        const refresh_token = await this.authService.createRefreshToken(user);
+
+        res.setHeader('access_token', access_token);
+        res.setHeader('refresh_token', refresh_token);
+        res.json({ success: true, message: 'user login successful' });
       }
     } catch (error) {
       console.log(error);
