@@ -18,6 +18,9 @@ export class Notice {
   @Column({ type: 'integer' })
   notice_target_no: number;
 
+  @Column({ type: 'timestamptz' })
+  createdAt: Date;
+
   @Column({
     type: 'varchar',
     length: 15,

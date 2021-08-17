@@ -17,7 +17,7 @@ export class ReComment {
   @Column({ type: 'varchar', length: 200 })
   recomment_content: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @Column({
