@@ -65,12 +65,10 @@ export class AuthService {
       user_token: 'onceToken',
     };
 
-    return {
-      access_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_SECRET,
-        expiresIn: '10m',
-      }),
-    };
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '10m',
+    });
   }
 
   async tokenValidate(token: string) {
