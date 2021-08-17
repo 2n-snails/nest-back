@@ -48,12 +48,11 @@ export class UsersController {
   @UseGuards(NaverAuthGuard)
   @Get('auth/naver/callback')
   async callback(@Req() req, @Res() res: Response): Promise<any> {
-    res.header('access_token', req.user.access_token);
-    res.header('refresh_token', req.user.refresh_token);
-    res.send('OK');
+    res.cookie('access_token', req.user.access_token);
+    res.cookie('refresh_token', req.user.refresh_token);
+    res.redirect('http://localhost:3000/auth/singup');
     res.end();
     // 리다이렉트 해주는 페이지
-    // res.redirect('http://localhost:3000/login');
   }
 
   @ApiOperation({
@@ -73,9 +72,9 @@ export class UsersController {
   @UseGuards(KakaoAuthGuard)
   @Get('auth/kakao/callback')
   async kakaocallback(@Req() req, @Res() res: Response) {
-    res.header('access_token', req.user.access_token);
-    res.header('refresh_token', req.user.refresh_token);
-    res.send('OK');
+    res.cookie('access_token', req.user.access_token);
+    res.cookie('refresh_token', req.user.refresh_token);
+    res.redirect('http://localhost:3000/auth/singup');
     res.end();
   }
 
@@ -99,26 +98,30 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Post('auth/login')
   async registUser(@Request() req: any, @Body() registUserDTO: RegistUserDTO) {
-    const { user_email, user_nick, user_provider, user_token } = req.user;
-    const { user_tel, user_privacy } = registUserDTO;
-    // 1회용 토큰인경우
-    if (user_token === 'onceToken') {
-      await getConnection()
-        .createQueryBuilder()
-        .insert()
-        .into(User)
-        .values({
-          user_email,
-          user_tel,
-          user_nick,
-          user_provider,
-          user_privacy,
-        })
-        .execute();
-      const user = await this.authService.validateUser(user_email);
-      await this.authService.createLoginToken(user);
-      await this.authService.createRefreshToken(user);
-      return { success: true, message: 'user login successful' };
+    try {
+      const { user_email, user_nick, user_provider, user_token } = req.user;
+      const { user_tel, user_privacy } = registUserDTO;
+      // 1회용 토큰인경우
+      if (user_token === 'onceToken') {
+        await getConnection()
+          .createQueryBuilder()
+          .insert()
+          .into(User)
+          .values({
+            user_email,
+            user_tel,
+            user_nick,
+            user_provider,
+            user_privacy,
+          })
+          .execute();
+        const user = await this.authService.validateUser(user_email);
+        await this.authService.createLoginToken(user);
+        await this.authService.createRefreshToken(user);
+        return { success: true, message: 'user login successful' };
+      }
+    } catch (error) {
+      console.log(error);
     }
     // 그 외의 경우
     return false;
