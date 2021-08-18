@@ -4,6 +4,7 @@ import { ProductIdParam } from './dto/productIdParam.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiInternalServerErrorResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -24,7 +25,6 @@ import {
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
-import { AppService } from 'src/app.service';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
 import { AddressCity } from 'src/entity/address_city.entity';
 import { Category } from 'src/entity/category.entity';
@@ -32,10 +32,7 @@ import { Category } from 'src/entity/category.entity';
 @ApiTags('product')
 @Controller('product')
 export class ProductController {
-  constructor(
-    private readonly productService: ProductService,
-    private readonly appService: AppService,
-  ) {}
+  constructor(private readonly productService: ProductService) {}
 
   @ApiBearerAuth('access-token')
   @ApiOperation({
@@ -54,22 +51,18 @@ export class ProductController {
     status: 401,
     description: '토큰 에러',
   })
+  @ApiInternalServerErrorResponse({
+    status: 500,
+    description: 'Server Error',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   async productUpload(
     @Body() createdProductDTO: CreatedProductDTO,
     @Req() req,
-  ) {
+  ): Promise<any> {
     const user = req.user;
-    const result = await this.productService.createProduct(
-      createdProductDTO,
-      user,
-    );
-    if (result) {
-      return { suceess: true, message: 'Product Upload Success' };
-    } else {
-      throw new InternalServerErrorException();
-    }
+    return await this.productService.createProduct(createdProductDTO, user);
   }
 
   @ApiOperation({
@@ -132,27 +125,11 @@ export class ProductController {
     @Param() param: ProductIdParam,
   ) {
     const user = req.user;
-    const product = await this.productService.findProductById(param.product_id);
-    if (!product) {
-      return {
-        message: 'This product does not exist',
-        success: false,
-      };
-    }
-    const result = await this.productService.createComment(
-      user,
+    return await this.productService.createComment(
       createdCommentDTO,
-      product,
+      user,
+      param.product_id,
     );
-    if (result) {
-      await this.appService.createNotice(
-        user.user_no,
-        param.product_id,
-        'comment',
-      );
-      return { success: true, message: 'Comment successful' };
-    }
-    throw new InternalServerErrorException();
   }
 
   @ApiBearerAuth('access-token')
@@ -195,14 +172,14 @@ export class ProductController {
       createReCommentDto,
       param.product_id,
     );
-    if (result) {
-      await this.appService.createNotice(
-        user.user_no,
-        param.product_id,
-        'recomment',
-      );
-      return { success: true, message: 'ReComment successful' };
-    }
+    // if (result) {
+    //   await this.appService.createNotice(
+    //     user.user_no,
+    //     param.product_id,
+    //     'recomment',
+    //   );
+    //   return { success: true, message: 'ReComment successful' };
+    // }
     throw new InternalServerErrorException();
   }
 
@@ -246,7 +223,7 @@ export class ProductController {
     );
     if (!user) {
       await this.productService.createWish(user_no, param.product_id);
-      await this.appService.createNotice(user_no, param.product_id, 'wish');
+      //await this.appService.createNotice(user_no, param.product_id, 'wish');
       return {
         message: 'wish successful',
         success: true,

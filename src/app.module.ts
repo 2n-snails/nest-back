@@ -26,6 +26,7 @@ import { Product } from './entity/product.entity';
 import { ReComment } from './entity/recomment.entity';
 import { Review } from './entity/review.entity';
 import { Wish } from './entity/wish.entity';
+import { CreateAppService } from './query/create.service';
 
 @Module({
   imports: [
@@ -75,7 +76,7 @@ import { Wish } from './entity/wish.entity';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CreateAppService],
   exports: [AppService],
 })
 export class AppModule implements NestModule {

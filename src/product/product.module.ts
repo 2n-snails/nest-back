@@ -11,6 +11,8 @@ import { ReComment } from 'src/entity/recomment.entity';
 import { AppModule } from 'src/app.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
+import { CreateProductService } from './query/createProduct.service';
+import { ReadProductService } from './query/readProduct.service';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { UsersModule } from 'src/users/users.module';
     AuthModule,
     UsersModule,
   ],
-  providers: [ProductService],
+  providers: [ProductService, CreateProductService, ReadProductService],
   controllers: [ProductController],
   exports: [ProductService],
 })
