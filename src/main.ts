@@ -2,8 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import * as Sentry from '@sentry/node';
-import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
+// import * as Sentry from '@sentry/node';
+// import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
 
 declare const module: any;
 
@@ -12,10 +12,10 @@ async function bootstrap() {
   const port = process.env.SERVICE_PORT || 4000;
 
   // 센트리 적용 : dev 단계에서는 주석처리
-  Sentry.init({
-    dsn: process.env.SENTRY_KEY,
-  });
-  app.useGlobalInterceptors(new SentryInterceptor());
+  // Sentry.init({
+  //   dsn: process.env.SENTRY_KEY,
+  // });
+  // app.useGlobalInterceptors(new SentryInterceptor());
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
