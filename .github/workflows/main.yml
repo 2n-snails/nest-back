@@ -44,7 +44,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
             
               sudo su
-              cd /home/${{ secrets.AWS_PRIVATE_KEY }}/nest-back &&
+              cd /home/${{ secrets.HOSTNAME }}/nest-back &&
               kill -9 `ps -ef|grep nest|awk '{print $2}'` &&
               git checkout main &&
               git fetch --all &&
