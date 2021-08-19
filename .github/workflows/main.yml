@@ -20,11 +20,9 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
     
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: delete package-lock.json
+        run: rm package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: bulid file
+        run: npm run build
