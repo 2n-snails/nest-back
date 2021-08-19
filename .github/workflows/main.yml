@@ -26,3 +26,28 @@ jobs:
         run: npm install
       - name: bulid file
         run: npm run build
+
+  Deploy:
+      needs: build
+      runs-on: ubuntu-latest
+      
+      steps:
+        - uses: actions/checkout@v2 
+        - name: Deploy in EC2
+          env:
+              PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+              HOSTNAME : ${{ secrets.HOSTNAME }}
+              USER_NAME : ${{ secrets.USER_NAME }}
+              
+          run: |
+            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+            ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            
+              sudo su
+              cd /home/${{ secrets.AWS_PRIVATE_KEY }}/nest-back &&
+              kill -9 `ps -ef|grep nest|awk '{print $2}'` &&
+              git checkout main &&
+              git fetch --all &&
+              git reset --hard origin/main &&
+              git pull origin main &&
+              nohup npm run start:dev
