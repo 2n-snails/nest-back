@@ -29,6 +29,12 @@ jobs:
       - name: bulid file
         run: npm run build
 
+      - name: Create env file
+        run: |
+          touch .env.development	
+          $ .env.development
+          ${{ secrets.ENV }}
+
       - name: Make tar file
         run: tar -cpvzf ./$GITHUB_SHA.tgz *
         shell: bash
