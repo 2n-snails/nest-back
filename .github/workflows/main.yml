@@ -22,32 +22,29 @@ jobs:
     
       - name: delete package-lock.json
         run: rm package-lock.json
+
       - name: Install dependencies
         run: npm install
+
       - name: bulid file
         run: npm run build
 
-  Deploy:
-      needs: build
-      runs-on: ubuntu-latest
-      
-      steps:
-        - uses: actions/checkout@v2 
-        - name: Deploy in EC2
-          env:
-              PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-              HOSTNAME : ${{ secrets.HOSTNAME }}
-              USER_NAME : ${{ secrets.USER_NAME }}
-              
-          run: |
-            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-            ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            
-              sudo su
-              cd /home/${{ secrets.HOSTNAME }}/nest-back &&
-              kill -9 `ps -ef|grep nest|awk '{print $2}'` &&
-              git checkout main &&
-              git fetch --all &&
-              git reset --hard origin/main &&
-              git pull origin main &&
-              nohup npm run start:dev
+      - name: Make tar file
+        run: tar -cpvzf ./$GITHUB_SHA.tgz *
+        shell: bash
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp \
+            --region ap-northeast-2 \
+            ./$GITHUB_SHA.tgz s3://recycle-s3-bucket-dev/$PROJECT_NAME/$GITHUB_SHA.tgz
+
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name recycle-codedeploy-dev --file-exists-behavior OVERWRITE --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name CodeDeployRecycle-dev --s3-location bucket=recycle-s3-bucket-dev,bundleType=tgz,key=$PROJECT_NAME/$GITHUB_SHA.tgz
