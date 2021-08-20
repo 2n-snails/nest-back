@@ -7,12 +7,12 @@ files:
 permissions:
   - object: /home/ec2-user
     pattern: '**'
-    owner: ec2-user
-    group: ec2-user
+    owner: root
+    group: root
 hooks:
   BeforeInstall:
     - location: scripts/before_deploy.sh
-      runas: ec2-user
+      runas: root
   AfterInstall:
     - location: scripts/after_deploy.sh
-      runas: ec2-user
+      runas: root
