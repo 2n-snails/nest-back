@@ -12,3 +12,4 @@ mv .env.development ../
 cd ..
 
 nohup npm run start:dev &
+exit
