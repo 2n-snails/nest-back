@@ -11,5 +11,4 @@ cd secret
 mv .env.development ../
 cd ..
 
-nohup npm run start:dev &
-exit
+(npm run start:dev&)
