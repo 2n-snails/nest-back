@@ -28,11 +28,15 @@ import { ProductService } from './product.service';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
 import { AddressCity } from 'src/entity/address_city.entity';
 import { Category } from 'src/entity/category.entity';
+import { AppService } from 'src/app.service';
 
 @ApiTags('product')
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly appService: AppService,
+  ) {}
 
   @ApiBearerAuth('access-token')
   @ApiOperation({
@@ -124,12 +128,30 @@ export class ProductController {
     @Body() createdCommentDTO: CreatedCommentDTO,
     @Param() param: ProductIdParam,
   ) {
-    const user = req.user;
-    return await this.productService.createComment(
-      createdCommentDTO,
-      user,
-      param.product_id,
-    );
+    try {
+      const user = req.user;
+      // 상품 찾기
+      const product = await this.productService.findProductById(
+        param.product_id,
+      );
+      // 댓글 생성
+      const comment = await this.productService.createComment(
+        createdCommentDTO,
+        user,
+        product,
+      );
+      // 알림 생성
+      if (comment.success) {
+        await this.appService.createNotice(
+          user.user_no,
+          product.product_no,
+          'comment',
+        );
+        // 여기부터 수정
+      }
+    } catch (error) {
+      return error;
+    }
   }
 
   @ApiBearerAuth('access-token')

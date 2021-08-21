@@ -137,23 +137,22 @@ export class ProductService {
   async createComment(
     createdCommentDTO: CreatedCommentDTO,
     user: User,
-    product_no: number,
+    product: Product,
   ) {
-    const target_product = await this.findProductById(product_no);
-
-    const new_comment = await this.createProductService.createComment(
-      createdCommentDTO,
-      user,
-      target_product,
-    );
-
-    const new_notice = await this.appService.createNotice(
-      user.user_no,
-      product_no,
-      'comment',
-    );
-
-    return { success: true, message: 'Write Comment Successful' };
+    try {
+      const new_comment = await this.createProductService.createComment(
+        createdCommentDTO,
+        user,
+        product,
+      );
+      if (new_comment) {
+        return { success: true, message: 'Write Comment Successful' };
+      } else {
+        return { success: false };
+      }
+    } catch (error) {
+      return error;
+    }
   }
 
   async createReComment(
