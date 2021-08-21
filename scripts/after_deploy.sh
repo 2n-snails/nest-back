@@ -10,7 +10,7 @@ export NVM_DIR="/home/ec2-user/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 cd secret
-mv .env.development ../
+sudo mv .env.development ../
 cd ..
 
 (npm run start:dev&)
