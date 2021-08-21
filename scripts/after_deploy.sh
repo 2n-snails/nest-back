@@ -9,4 +9,4 @@ export NVM_DIR="$HOME/.nvm"
 cd secret
 mv .env.development ../
 cd ..
-nohup npm run start:dev
+nohup npm run start:dev &
