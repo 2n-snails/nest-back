@@ -31,10 +31,13 @@ jobs:
 
       - name: Create env file
         run: |
+          mkdir secret
+          cd secret
           touch .env.development
           cat << EOF >> .env.development
           ${{ secrets.ENV }}
           EOF
+          ../
 
       - name: Make tar file
         run: tar -cpvzf ./$GITHUB_SHA.tgz *
