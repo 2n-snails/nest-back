@@ -18,6 +18,7 @@ export class AppService {
     product_no: number,
     notice_type: string,
   ) {
+    // 여기부터 수정
     const reciver = await this.productService.findUserByProduct(product_no);
     return await this.createService.createNotice(
       writer_no,
