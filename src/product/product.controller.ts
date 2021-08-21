@@ -147,7 +147,7 @@ export class ProductController {
           product.product_no,
           'comment',
         );
-        // 여기부터 수정
+        // 여기부터는 알림생성
       }
     } catch (error) {
       return error;
