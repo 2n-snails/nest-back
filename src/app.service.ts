@@ -18,7 +18,7 @@ export class AppService {
     product_no: number,
     notice_type: string,
   ) {
-    // 여기부터 수정
+    // 여기부터 수정 상품 찾는것 부터 수정하면됨
     const reciver = await this.productService.findUserByProduct(product_no);
     return await this.createService.createNotice(
       writer_no,
