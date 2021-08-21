@@ -50,10 +50,10 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   user_refresh_token: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @Column({

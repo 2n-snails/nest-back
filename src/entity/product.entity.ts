@@ -33,7 +33,7 @@ export class Product {
   @Column({ type: 'boolean', default: false })
   product_state: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @Column({

@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -17,6 +18,9 @@ export class Notice {
 
   @Column({ type: 'integer' })
   notice_target_no: number;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 
   @Column({
     type: 'varchar',
