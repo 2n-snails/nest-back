@@ -57,4 +57,4 @@ jobs:
             ./$GITHUB_SHA.tgz s3://recycle-s3-bucket-dev/$PROJECT_NAME/$GITHUB_SHA.tgz
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name recycle-codedeploy-dev --file-exists-behavior OVERWRITE --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name CodeDeployRecycle-dev --s3-location bucket=recycle-s3-bucket-dev,bundleType=tgz,key=$PROJECT_NAME/$GITHUB_SHA.tgz
+        run: aws deploy create-deployment --application-name recycle-codedeploy-dev --file-exists-behavior OVERWRITE --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name codeDeploy-recycle2 --s3-location bucket=recycle-s3-bucket-dev,bundleType=tgz,key=$PROJECT_NAME/$GITHUB_SHA.tgz
