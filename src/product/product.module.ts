@@ -30,6 +30,6 @@ import { ReadProductService } from './query/readProduct.service';
   ],
   providers: [ProductService, CreateProductService, ReadProductService],
   controllers: [ProductController],
-  exports: [ProductService],
+  exports: [ProductService, ReadProductService],
 })
 export class ProductModule {}
