@@ -9,7 +9,7 @@ export class CreateAppService {
     product_no: number,
     notice_type: string,
     reciver,
-  ) {
+  ): Promise<any> {
     try {
       await getConnection()
         .createQueryBuilder()
@@ -26,13 +26,7 @@ export class CreateAppService {
         .execute();
       return { success: true };
     } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message,
-        },
-        500,
-      );
+      return { suceess: false, message: 'Create Notice Fali' };
     }
   }
 }
