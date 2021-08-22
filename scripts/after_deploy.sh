@@ -11,4 +11,4 @@ cd secret
 sudo mv .env.development ../
 cd ..
 
-(npm run start:dev&)
+npm start
