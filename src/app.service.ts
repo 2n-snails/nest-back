@@ -5,6 +5,7 @@ import { Notice } from './entity/notice.entity';
 import { Product } from './entity/product.entity';
 import { ProductService } from './product/product.service';
 import { CreateAppService } from './query/create.service';
+import { ReadProductService } from './product/query/readProduct.service';
 
 @Injectable()
 export class AppService {
@@ -12,14 +13,15 @@ export class AppService {
     @Inject(forwardRef(() => ProductService))
     private readonly productService: ProductService,
     private readonly createService: CreateAppService,
+    private readonly readProductService: ReadProductService,
   ) {}
+  // 알림생성
   async createNotice(
     writer_no: number,
     product_no: number,
     notice_type: string,
   ) {
-    // 여기부터 수정 상품 찾는것 부터 수정하면됨
-    const reciver = await this.productService.findUserByProduct(product_no);
+    const reciver = await this.readProductService.findUserbyProduct(product_no);
     return await this.createService.createNotice(
       writer_no,
       product_no,
