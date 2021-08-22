@@ -27,10 +27,10 @@ export class ReadProductService {
     } catch (error) {
       switch (error.message) {
         case 'No Content':
-          throw new HttpException(error.message, 404);
+          throw new Error(error.message);
 
         default:
-          throw new HttpException(error.message, 500);
+          throw new Error(error.message);
       }
     }
   }
@@ -42,12 +42,7 @@ export class ReadProductService {
         .select(['category.category_name'])
         .getMany();
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error.message,
-        },
-        500,
-      );
+      throw new Error(error.message);
     }
   }
 
@@ -59,12 +54,30 @@ export class ReadProductService {
         .select(['city.city_name', 'area.area_name'])
         .getMany();
     } catch (error) {
-      throw new HttpException(
-        {
-          message: error.message,
-        },
-        500,
-      );
+      throw new Error(error.message);
+    }
+  }
+
+  async findUserbyProduct(product_no: number): Promise<Product> {
+    try {
+      const product = await this.productRepository
+        .createQueryBuilder('p')
+        .select('u.user_no as user_no')
+        .leftJoin('p.user', 'u')
+        .where(`product_no = ${product_no}`)
+        .getRawOne();
+      if (!product) {
+        throw new Error('No Content');
+      }
+      return product;
+    } catch (error) {
+      switch (error.message) {
+        case 'No Content':
+          throw new Error(error.message);
+
+        default:
+          throw new Error(error.message);
+      }
     }
   }
 }
