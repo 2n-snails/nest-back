@@ -139,20 +139,11 @@ export class ProductService {
     user: User,
     product: Product,
   ) {
-    try {
-      const new_comment = await this.createProductService.createComment(
-        createdCommentDTO,
-        user,
-        product,
-      );
-      if (new_comment) {
-        return { success: true, message: 'Write Comment Successful' };
-      } else {
-        return { success: false };
-      }
-    } catch (error) {
-      return error;
-    }
+    return await this.createProductService.createComment(
+      createdCommentDTO,
+      user,
+      product,
+    );
   }
 
   async createReComment(
