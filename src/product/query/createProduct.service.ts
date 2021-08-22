@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entity/category.entity';
 import { Comment } from 'src/entity/comment.entity';
@@ -36,7 +36,7 @@ export class CreateProductService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
+    let result: { success: boolean; message: string; statusCode?: number };
     try {
       // 상품 업로드
       const { product_title, product_content, product_price } =
@@ -71,18 +71,17 @@ export class CreateProductService {
         await queryRunner.manager.save(newProductCategory);
       }
       await queryRunner.commitTransaction();
-      return { success: true, message: 'Product Upload Successful' };
+      result = { success: true, message: 'Product Upload Successful' };
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message,
-        },
-        500,
-      );
+      result = {
+        success: false,
+        message: 'Create Product Fail',
+        statusCode: 500,
+      };
     } finally {
       await queryRunner.release();
+      return result;
     }
   }
 
@@ -94,7 +93,7 @@ export class CreateProductService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
+    let result: { success: boolean; message: string; statusCode: number };
     try {
       // 댓글 작성
       const { comment_content } = createdCommentDTO;
@@ -103,18 +102,16 @@ export class CreateProductService {
       comment.user = user;
       await queryRunner.manager.save(comment);
       await queryRunner.commitTransaction();
-      return true;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message,
-        },
-        500,
-      );
+      result = {
+        success: false,
+        message: 'Create Comment Fali',
+        statusCode: 500,
+      };
     } finally {
       await queryRunner.release();
+      return result;
     }
   }
 }
