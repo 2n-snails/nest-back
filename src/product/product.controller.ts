@@ -15,6 +15,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   InternalServerErrorException,
   Param,
   Post,
@@ -65,8 +66,26 @@ export class ProductController {
     @Body() createdProductDTO: CreatedProductDTO,
     @Req() req,
   ): Promise<any> {
-    const user = req.user;
-    return await this.productService.createProduct(createdProductDTO, user);
+    try {
+      const user = req.user;
+      const new_product = await this.productService.createProduct(
+        createdProductDTO,
+        user,
+      );
+      if (new_product.success) {
+        return new_product;
+      } else {
+        throw new Error(new_product.message);
+      }
+    } catch (e) {
+      throw new HttpException(
+        {
+          success: false,
+          message: e.message,
+        },
+        500,
+      );
+    }
   }
 
   @ApiOperation({
@@ -79,7 +98,17 @@ export class ProductController {
   })
   @Get('address')
   async findAllAddress(): Promise<AddressCity[]> {
-    return await this.productService.getAllAddress();
+    try {
+      return await this.productService.getAllAddress();
+    } catch (e) {
+      throw new HttpException(
+        {
+          success: false,
+          message: e.message,
+        },
+        500,
+      );
+    }
   }
 
   @ApiOperation({
@@ -92,7 +121,17 @@ export class ProductController {
   })
   @Get('category')
   async findAllCategory(): Promise<Category[]> {
-    return await this.productService.getAllCategory();
+    try {
+      return await this.productService.getAllCategory();
+    } catch (e) {
+      throw new HttpException(
+        {
+          success: false,
+          message: e.message,
+        },
+        500,
+      );
+    }
   }
 
   @ApiOperation({
@@ -142,15 +181,38 @@ export class ProductController {
       );
       // 알림 생성
       if (comment.success) {
-        await this.appService.createNotice(
+        const new_notice = await this.appService.createNotice(
           user.user_no,
           product.product_no,
           'comment',
         );
-        // 여기부터는 알림생성
+
+        if (new_notice.success) {
+          return {
+            success: true,
+            message: 'Create Comment and Notice Successful',
+          };
+        } else {
+          // 알림생성에서 에러가 나면 댓글을 지워야 하나...
+          throw new Error(new_notice.message);
+        }
+      } else {
+        throw new Error(comment.message);
       }
-    } catch (error) {
-      return error;
+    } catch (e) {
+      switch (e.message) {
+        case 'No Content':
+          throw new HttpException(e.message, 404);
+
+        default:
+          throw new HttpException(
+            {
+              success: false,
+              message: e.message,
+            },
+            500,
+          );
+      }
     }
   }
 
