@@ -1,3 +1,4 @@
+import { UsersService } from 'src/users/users.service';
 import { UpdateUserNickDto } from './dto/updateUserNick.dto';
 import { UpdateUserImageDto } from './dto/updateUserImage.dto';
 import { CreateReviewDto } from './dto/createReview.dto';
@@ -16,6 +17,8 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -30,7 +33,10 @@ import { User } from 'src/entity/user.entity';
 @ApiTags('mypage')
 @Controller('mypage')
 export class MypageController {
-  constructor(private readonly mypageService: MypageService) {}
+  constructor(
+    private readonly mypageService: MypageService,
+    private readonly usersService: UsersService,
+  ) {}
   // 유저의 찜 목록
   @ApiBearerAuth('access-token')
   @ApiOperation({
@@ -48,8 +54,14 @@ export class MypageController {
   @UseGuards(JwtAuthGuard)
   @Get('my_wish/:user_id')
   async wishList(@Req() req, @Param() param: UserIdParam): Promise<User[]> {
-    const result = await this.mypageService.findUserWish(param.user_id);
-    return result;
+    const tokenId = req.user.user_no;
+    const paramId = param.user_id;
+    const checkId = this.usersService.checkTokenAndParam(tokenId, paramId);
+    if (checkId) {
+      const result = await this.mypageService.findUserWish(tokenId);
+      return result;
+    }
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
 
   // 유저의 판매중인 상품

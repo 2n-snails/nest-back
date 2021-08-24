@@ -79,6 +79,14 @@ export class MypageService {
       .andWhere(`wish.deleted = 'N'`)
       .getMany();
     return result;
+    // 쿼리 분리 후 결과가 있다면
+    // if (result) {
+    //   return result;
+    // }
+    // 결과가 없다면
+    // return {
+    //   'no result'
+    // }
   }
 
   // 유저의 판매중인 상품
