@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as Sentry from '@sentry/node';
 import { RavenInterceptor } from 'nest-raven';
-// import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
 
 declare const module: any;
 
@@ -12,11 +11,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const port = process.env.SERVICE_PORT || 4000;
 
-  // 센트리 적용 : dev 단계에서는 주석처리
   Sentry.init({
     dsn: process.env.SENTRY_KEY,
   });
-  // app.useGlobalInterceptors(new SentryInterceptor());
   app.useGlobalInterceptors(new RavenInterceptor());
 
   app.setGlobalPrefix('api/v1');
