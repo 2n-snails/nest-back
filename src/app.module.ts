@@ -26,6 +26,7 @@ import { Product } from './entity/product.entity';
 import { ReComment } from './entity/recomment.entity';
 import { Review } from './entity/review.entity';
 import { Wish } from './entity/wish.entity';
+import { RavenModule } from 'nest-raven';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { Wish } from './entity/wish.entity';
     UsersModule,
     MypageModule,
     AuthModule,
+    RavenModule,
   ],
   controllers: [AppController],
   providers: [AppService],
