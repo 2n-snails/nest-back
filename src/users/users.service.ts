@@ -23,4 +23,11 @@ export class UsersService {
       .getOne();
     return user;
   }
+
+  checkTokenAndParam(tokenId: number, paramId: number): boolean {
+    if (tokenId === Number(paramId)) {
+      return true;
+    }
+    return false;
+  }
 }
