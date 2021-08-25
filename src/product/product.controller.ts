@@ -380,7 +380,19 @@ export class ProductController {
   @UseGuards(JwtAuthGuard)
   @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
-    return await this.productService.findSellerPhoneNum(param.product_id);
+    const phone_number = await this.productService.findSellerPhoneNum(
+      param.product_id,
+    );
+    if (!phone_number.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: phone_number.message,
+        },
+        phone_number.statusCode,
+      );
+    }
+    return phone_number;
   }
 
   @ApiBearerAuth('access-token')

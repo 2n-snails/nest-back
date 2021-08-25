@@ -154,16 +154,7 @@ export class ProductService {
 
   // 판매자 전화번호 보내주기
   async findSellerPhoneNum(product_no: number) {
-    try {
-      return await this.productRepository
-        .createQueryBuilder('p')
-        .select('u.user_tel as user_tel')
-        .leftJoin('p.user', 'u')
-        .where(`p.product_no = ${product_no}`)
-        .getRawOne();
-    } catch (error) {
-      throw new InternalServerErrorException();
-    }
+    return await this.readProductService.findPhoneNumber(product_no);
   }
   async findWishById(user_no, product_id) {
     return this.readProductService.findWishById(user_no, product_id);
