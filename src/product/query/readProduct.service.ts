@@ -4,6 +4,7 @@ import { AddressCity } from 'src/entity/address_city.entity';
 import { Category } from 'src/entity/category.entity';
 import { Comment } from 'src/entity/comment.entity';
 import { Product } from 'src/entity/product.entity';
+import { Wish } from 'src/entity/wish.entity';
 import { getRepository, Repository } from 'typeorm';
 
 @Injectable()
@@ -101,6 +102,25 @@ export class ReadProductService {
     } catch (error) {
       console.log(error);
       return { success: false, message: error.message, statusCode: 500 };
+    }
+  }
+
+  async findWishById(user_no: number, product_no: number) {
+    try {
+      const wish = await getRepository(Wish)
+        .createQueryBuilder('wish')
+        .select()
+        .where(`wish.user = ${user_no}`)
+        .andWhere(`wish.product = ${product_no}`)
+        .getOne();
+      if (!wish) {
+        return { success: true };
+      } else {
+        return { success: false, message: 'already exist', statusCode: 403 };
+      }
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: 'Server Error', statusCode: 500 };
     }
   }
 }

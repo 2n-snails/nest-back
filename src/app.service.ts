@@ -1,7 +1,6 @@
 import { SearchProductDTO } from './dto/searchProduct.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { getConnection, getRepository } from 'typeorm';
-import { Notice } from './entity/notice.entity';
+import { getRepository } from 'typeorm';
 import { Product } from './entity/product.entity';
 import { ProductService } from './product/product.service';
 import { CreateAppService } from './query/create.service';
@@ -11,7 +10,6 @@ import { ReadProductService } from './product/query/readProduct.service';
 export class AppService {
   constructor(
     @Inject(forwardRef(() => ProductService))
-    private readonly productService: ProductService,
     private readonly createService: CreateAppService,
     private readonly readProductService: ReadProductService,
   ) {}

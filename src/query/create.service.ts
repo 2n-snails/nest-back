@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Notice } from 'src/entity/notice.entity';
 import { getConnection } from 'typeorm';
 

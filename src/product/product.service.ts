@@ -1,4 +1,3 @@
-import { AddressCity } from './../entity/address_city.entity';
 import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
 import {
@@ -167,22 +166,11 @@ export class ProductService {
     }
   }
   async findWishById(user_no, product_id) {
-    const wish = await getRepository(Wish)
-      .createQueryBuilder('wish')
-      .select()
-      .where(`wish.user = ${user_no}`)
-      .andWhere(`wish.product = ${product_id}`)
-      .getOne();
-    return wish;
+    return this.readProductService.findWishById(user_no, product_id);
   }
 
-  async createWish(user_no, product_id) {
-    await getConnection()
-      .createQueryBuilder()
-      .insert()
-      .into(Wish)
-      .values([{ user: user_no, product: product_id }])
-      .execute();
+  async createWish(user: User, product: Product) {
+    return this.createProductService.createWish(user, product);
   }
 
   async deleteWish(user_no, product_id) {

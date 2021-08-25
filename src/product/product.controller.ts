@@ -310,30 +310,55 @@ export class ProductController {
   @UseGuards(JwtAuthGuard)
   @Post(':product_id/wish')
   async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
-    const { user_no } = req.user;
+    const user = req.user;
     const product = await this.productService.findProductById(param.product_id);
     if (!product) {
-      return {
-        message: 'no product',
-        success: false,
-      };
+      throw new HttpException(
+        {
+          success: false,
+          message: product.message,
+        },
+        product.statusCode,
+      );
     }
-    const user = await this.productService.findWishById(
-      user_no,
-      param.product_id,
+    const wish = await this.productService.findWishById(
+      user.user_no,
+      product.data.product_no,
     );
-    if (!user) {
-      await this.productService.createWish(user_no, param.product_id);
-      //await this.appService.createNotice(user_no, param.product_id, 'wish');
-      return {
-        message: 'wish successful',
-        success: true,
-      };
+    if (!wish.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: wish.message,
+        },
+        wish.statusCode,
+      );
     }
-    return {
-      message: 'already exist',
-      success: false,
-    };
+    const new_wish = await this.productService.createWish(user, product.data);
+    if (!new_wish.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: new_wish.message,
+        },
+        new_wish.statusCode,
+      );
+    }
+    const new_notice = await this.appService.createNotice(
+      user.user_no,
+      product.data.product_no,
+      'wish',
+    );
+    if (!new_notice.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: new_notice.message,
+        },
+        new_notice.statusCode,
+      );
+    }
+    return { success: true, message: 'Create Wish and Notice Successful' };
   }
 
   @ApiOperation({
