@@ -424,16 +424,33 @@ export class ProductController {
     const result = await this.productService.findUserByProduct(
       param.product_id,
     );
-    const productUpdate =
-      result.user_no === user_no
-        ? await this.productService.updateProduct(
-            updateProdcutDTO,
-            param.product_id,
-          )
-        : {
-            success: false,
-            message: 'You do not have permission to edit this product',
-          };
+    if (!result.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: result.message,
+        },
+        result.statusCode,
+      );
+    }
+
+    if (result.data.user_no !== user_no) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const productUpdate = await this.productService.updateProduct(
+      updateProdcutDTO,
+      param.product_id,
+    );
+
+    if (!productUpdate.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: productUpdate.message,
+        },
+        productUpdate.statusCode,
+      );
+    }
     return productUpdate;
   }
 
