@@ -7,9 +7,10 @@ import { Product } from 'src/entity/product.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
 import { ReComment } from 'src/entity/recomment.entity';
 import { User } from 'src/entity/user.entity';
-import { Connection, Like, Repository } from 'typeorm';
+import { Connection, getRepository, Like, Repository } from 'typeorm';
 import { CreatedCommentDTO } from '../dto/createComment.dto';
 import { CreatedProductDTO } from '../dto/createProduct.dto';
+import { CreateReCommentDTO } from '../dto/createReComment.dto';
 
 @Injectable()
 export class CreateProductService {
@@ -22,10 +23,6 @@ export class CreateProductService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(ProductCategory)
     private readonly productCategoryRepository: Repository<ProductCategory>,
-    @InjectRepository(Comment)
-    private readonly commentRepository: Repository<Comment>,
-    @InjectRepository(ReComment)
-    private readonly reCommentRepository: Repository<ReComment>,
     private readonly connection: Connection,
   ) {}
 
@@ -89,28 +86,51 @@ export class CreateProductService {
     user: User,
     product: Product,
   ) {
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    let result: { success: boolean; message: string };
     try {
-      // 댓글 작성
       const { comment_content } = createdCommentDTO;
-      const comment = this.commentRepository.create({ comment_content });
-      comment.product = product;
-      comment.user = user;
-      await queryRunner.manager.save(comment);
-      await queryRunner.commitTransaction();
-      result = { success: true, message: 'Success Create Comment' };
+      await getRepository(Comment)
+        .createQueryBuilder()
+        .insert()
+        .values({
+          comment_content,
+          user,
+          product,
+        })
+        .execute();
+      return { success: true, message: 'Success Create Comment' };
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      result = {
+      return {
         success: false,
         message: 'Create Comment Fali',
+        statusCode: 500,
       };
-    } finally {
-      await queryRunner.release();
-      return result;
+    }
+  }
+
+  async createRecomment(
+    user: User,
+    comment: Comment,
+    createReCommentDto: CreateReCommentDTO,
+  ) {
+    try {
+      // 대댓글 작성
+      const { recomment_content } = createReCommentDto;
+      await getRepository(ReComment)
+        .createQueryBuilder()
+        .insert()
+        .values({
+          recomment_content,
+          comment,
+          user,
+        })
+        .execute();
+      return { success: true, message: 'Success Create Recomment' };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Create Recomment fail',
+        statusCode: 500,
+      };
     }
   }
 }

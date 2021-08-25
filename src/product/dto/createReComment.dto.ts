@@ -1,4 +1,5 @@
 import {
+  IsInt,
   IsNotEmpty,
   IsNumberString,
   IsString,
@@ -6,7 +7,7 @@ import {
 } from 'class-validator';
 
 export class CreateReCommentDTO {
-  @IsNumberString()
+  @IsInt()
   @IsNotEmpty()
   comment_no: number;
 

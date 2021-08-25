@@ -17,7 +17,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  InternalServerErrorException,
   Param,
   Post,
   Put,
@@ -28,10 +27,7 @@ import { CreatedProductDTO } from './dto/createProduct.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ProductService } from './product.service';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
-import { AddressCity } from 'src/entity/address_city.entity';
-import { Category } from 'src/entity/category.entity';
 import { AppService } from 'src/app.service';
-import { GetAddressCategoryDTO } from './dto/address.category.dto';
 
 @ApiTags('product')
 @Controller('product')
@@ -95,7 +91,7 @@ export class ProductController {
     description: '정상 요청',
   })
   @Get('address')
-  async findAllAddress(): Promise<GetAddressCategoryDTO> {
+  async findAllAddress(): Promise<any> {
     const address = await this.productService.getAllAddress();
     if (address.success) {
       return address;
@@ -119,7 +115,7 @@ export class ProductController {
     description: '정상 요청',
   })
   @Get('category')
-  async findAllCategory(): Promise<GetAddressCategoryDTO> {
+  async findAllCategory(): Promise<any> {
     const category = await this.productService.getAllCategory();
     if (category.success) {
       return category;
@@ -170,26 +166,14 @@ export class ProductController {
     const user = req.user;
     const product = await this.productService.findProductById(param.product_id);
     if (!product.success) {
-      switch (product.message) {
-        case `No Product Number ${param.product_id}`:
-          throw new HttpException(
-            {
-              success: false,
-              message: product.message,
-            },
-            HttpStatus.NOT_FOUND,
-          );
-        default:
-          throw new HttpException(
-            {
-              success: false,
-              message: product.message,
-            },
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-      }
+      throw new HttpException(
+        {
+          success: false,
+          message: product.message,
+        },
+        product.statusCode,
+      );
     }
-
     const comment = await this.productService.createComment(
       createdCommentDTO,
       user,
@@ -213,9 +197,9 @@ export class ProductController {
         throw new HttpException(
           {
             success: false,
-            message: 'Create Comment and Notice fail',
+            message: new_notice.message,
           },
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          new_notice.statusCode,
         );
       }
     } else {
@@ -224,7 +208,7 @@ export class ProductController {
           success: false,
           message: 'Create Comment fail',
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        comment.statusCode,
       );
     }
   }
@@ -257,27 +241,47 @@ export class ProductController {
     const comment = await this.productService.findCommentById(
       createReCommentDto.comment_no,
     );
-    if (!comment) {
-      return {
-        message: 'This comment does not exist',
-        success: false,
-      };
+    if (comment.success) {
+      const result = await this.productService.createReComment(
+        user,
+        comment.data,
+        createReCommentDto,
+      );
+      if (result.success) {
+        const new_notice = await this.appService.createNotice(
+          user.user_no,
+          param.product_id,
+          'recomment',
+        );
+        if (new_notice.success) {
+          return { success: true, message: 'Success' };
+        } else {
+          throw new HttpException(
+            {
+              success: false,
+              message: new_notice.message,
+            },
+            new_notice.statusCode,
+          );
+        }
+      } else {
+        throw new HttpException(
+          {
+            success: false,
+            message: result.message,
+          },
+          result.statusCode,
+        );
+      }
+    } else {
+      throw new HttpException(
+        {
+          success: false,
+          message: comment.message,
+        },
+        comment.statusCode,
+      );
     }
-    const result = await this.productService.createReComment(
-      user,
-      comment,
-      createReCommentDto,
-      param.product_id,
-    );
-    // if (result) {
-    //   await this.appService.createNotice(
-    //     user.user_no,
-    //     param.product_id,
-    //     'recomment',
-    //   );
-    //   return { success: true, message: 'ReComment successful' };
-    // }
-    throw new InternalServerErrorException();
   }
 
   // 신고하기

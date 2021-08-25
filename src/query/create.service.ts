@@ -26,7 +26,7 @@ export class CreateAppService {
         .execute();
       return { success: true, message: 'Success Create Notice' };
     } catch (error) {
-      return { suceess: false, message: 'Create Notice Fali' };
+      return { suceess: false, message: 'Create Notice Fali', statusCode: 500 };
     }
   }
 }
