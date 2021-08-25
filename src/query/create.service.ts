@@ -24,7 +24,7 @@ export class CreateAppService {
           },
         ])
         .execute();
-      return { success: true };
+      return { success: true, message: 'Success Create Notice' };
     } catch (error) {
       return { suceess: false, message: 'Create Notice Fali' };
     }
