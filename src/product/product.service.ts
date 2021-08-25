@@ -28,8 +28,6 @@ import { CreateProductService } from './query/createProduct.service';
 import { User } from 'src/entity/user.entity';
 import { ReadProductService } from './query/readProduct.service';
 import { AppService } from 'src/app.service';
-import { GetAddressCategoryDTO } from './dto/address.category.dto';
-import { ResProductDTO } from './dto/response.product.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -52,7 +50,7 @@ export class ProductService {
     private readonly appService: AppService,
   ) {}
 
-  async findProductById(product_no: number): Promise<ResProductDTO> {
+  async findProductById(product_no: number): Promise<any> {
     return await this.readProductService.findProductById(product_no);
   }
 
@@ -128,12 +126,7 @@ export class ProductService {
   }
 
   async findCommentById(comment_no: number) {
-    return await this.commentRepository.findOne({
-      where: {
-        comment_no: comment_no,
-        deleted: 'N',
-      },
-    });
+    return await this.readProductService.findCommentOne(comment_no);
   }
 
   async createComment(
@@ -149,34 +142,15 @@ export class ProductService {
   }
 
   async createReComment(
-    user,
-    comment,
+    user: User,
+    comment: Comment,
     createReCommentDto: CreateReCommentDTO,
-    id,
   ) {
-    // id 는 알림생성에 사용할 예정이라 아직은 사용하지 않습니다.
-    let result = true;
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // 대댓글 작성
-      const { recomment_content } = createReCommentDto;
-      const reComment = this.reCommentRepository.create({ recomment_content });
-      reComment.comment = comment;
-      reComment.user = user;
-      await queryRunner.manager.save(reComment);
-
-      await queryRunner.commitTransaction();
-      // 대댓글 작성 후 상품의 판매자에게 알림을 생성해줘야합니다.
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      result = false;
-    } finally {
-      await queryRunner.release();
-      return result;
-    }
+    return await this.createProductService.createRecomment(
+      user,
+      comment,
+      createReCommentDto,
+    );
   }
 
   // 판매자 전화번호 보내주기
@@ -378,11 +352,11 @@ export class ProductService {
       .getRawMany();
   }
 
-  async getAllAddress(): Promise<GetAddressCategoryDTO> {
+  async getAllAddress(): Promise<any> {
     return await this.readProductService.findAddress();
   }
 
-  async getAllCategory(): Promise<GetAddressCategoryDTO> {
+  async getAllCategory(): Promise<any> {
     return await this.readProductService.findCategory();
   }
 }

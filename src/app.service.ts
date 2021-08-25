@@ -22,12 +22,20 @@ export class AppService {
     notice_type: string,
   ) {
     const reciver = await this.readProductService.findUserbyProduct(product_no);
-    return await this.createService.createNotice(
-      writer_no,
-      product_no,
-      notice_type,
-      reciver,
-    );
+    if (reciver.success) {
+      return await this.createService.createNotice(
+        writer_no,
+        product_no,
+        notice_type,
+        reciver,
+      );
+    } else {
+      return {
+        success: false,
+        message: reciver.message,
+        statusCode: reciver.statusCode,
+      };
+    }
   }
 
   async productSearch(searchProductDTO: SearchProductDTO) {
