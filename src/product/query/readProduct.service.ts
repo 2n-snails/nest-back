@@ -123,4 +123,26 @@ export class ReadProductService {
       return { success: false, message: 'Server Error', statusCode: 500 };
     }
   }
+
+  async findPhoneNumber(product_no: number) {
+    try {
+      const phone_number = await this.productRepository
+        .createQueryBuilder('p')
+        .select('u.user_tel as user_tel')
+        .leftJoin('p.user', 'u')
+        .where(`p.product_no = ${product_no}`)
+        .getRawOne();
+      if (phone_number) {
+        return { success: true, data: phone_number };
+      } else {
+        return {
+          success: true,
+          data: phone_number,
+          message: 'no phone number',
+        };
+      }
+    } catch (error) {
+      return { success: false, message: 'Server Error', statusCode: 500 };
+    }
+  }
 }
