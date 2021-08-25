@@ -1,15 +1,13 @@
 import { SearchProductDTO } from './dto/searchProduct.dto';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { getRepository } from 'typeorm';
 import { Product } from './entity/product.entity';
-import { ProductService } from './product/product.service';
 import { CreateAppService } from './query/create.service';
 import { ReadProductService } from './product/query/readProduct.service';
 
 @Injectable()
 export class AppService {
   constructor(
-    @Inject(forwardRef(() => ProductService))
     private readonly createService: CreateAppService,
     private readonly readProductService: ReadProductService,
   ) {}

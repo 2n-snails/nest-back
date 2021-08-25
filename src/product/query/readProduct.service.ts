@@ -3,7 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AddressCity } from 'src/entity/address_city.entity';
 import { Category } from 'src/entity/category.entity';
 import { Comment } from 'src/entity/comment.entity';
+import { Image } from 'src/entity/image.entity';
 import { Product } from 'src/entity/product.entity';
+import { ProductCategory } from 'src/entity/product_category.entity';
 import { Wish } from 'src/entity/wish.entity';
 import { getRepository, Repository } from 'typeorm';
 
@@ -143,6 +145,34 @@ export class ReadProductService {
       }
     } catch (error) {
       return { success: false, message: 'Server Error', statusCode: 500 };
+    }
+  }
+
+  async findProductImage(product_no: number): Promise<any> {
+    try {
+      const productImage = await getRepository(Image)
+        .createQueryBuilder()
+        .select('image_src')
+        .where(`image_product_no = ${product_no}`)
+        .getRawMany();
+      return { success: true, data: productImage };
+    } catch (error) {
+      return { success: false, message: 'Server Error' };
+    }
+  }
+
+  async findProductCategory(product_no: number): Promise<any> {
+    try {
+      const category = await getRepository(ProductCategory)
+        .createQueryBuilder('pc')
+        .select(['c.category_name as category_name', 'pc.*'])
+        .leftJoin('pc.category', 'c')
+        .where(`pc.product_no = ${product_no}`)
+        .andWhere('pc.deleted = :value', { value: 'N' })
+        .getRawMany();
+      return { success: true, data: category };
+    } catch (error) {
+      return { success: false, message: 'Server Error' };
     }
   }
 }

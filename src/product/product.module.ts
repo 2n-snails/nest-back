@@ -13,6 +13,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
 import { CreateProductService } from './query/createProduct.service';
 import { ReadProductService } from './query/readProduct.service';
+import { UpdateProductService } from './query/updateProduct.service';
 
 @Module({
   imports: [
@@ -28,7 +29,12 @@ import { ReadProductService } from './query/readProduct.service';
     AuthModule,
     UsersModule,
   ],
-  providers: [ProductService, CreateProductService, ReadProductService],
+  providers: [
+    ProductService,
+    CreateProductService,
+    ReadProductService,
+    UpdateProductService,
+  ],
   controllers: [ProductController],
   exports: [ProductService, ReadProductService],
 })
