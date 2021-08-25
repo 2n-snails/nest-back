@@ -10,7 +10,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "start-backup": "nest start",
-    "start": "rimraf dist && cross-env NODE_ENV=production nest start",
+    "start": "rimraf dist && nest build && pm2 start",
     "start:dev-backup": "nest start --watch",
     "start:dev-backup2": "nest build --webpack --webpackPath webpack-hmr.config.js --watch",
     "start:dev": "rimraf dist && cross-env NODE_ENV=development nest build --webpack --webpackPath webpack-hmr.config.js --watch",

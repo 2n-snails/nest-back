@@ -1,0 +1,58 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+    
+      - name: delete package-lock.json
+        run: rm package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: bulid file
+        run: npm run build
+
+      - name: Create env file
+        run: |
+          mkdir secret
+          cd secret
+          touch .env.development
+          cat << EOF >> .env.development
+          ${{ secrets.ENV }}
+          EOF
+          cd ../
+
+      - name: Make tar file
+        run: tar -cpvzf ./$GITHUB_SHA.tgz *
+        shell: bash
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp \
+            --region ap-northeast-2 \
+            ./$GITHUB_SHA.tgz s3://recycle-s3-bucket-dev/$PROJECT_NAME/$GITHUB_SHA.tgz
+
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name recycle-codedeploy-dev --file-exists-behavior OVERWRITE --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name codeDeploy-recycle2 --s3-location bucket=recycle-s3-bucket-dev,bundleType=tgz,key=$PROJECT_NAME/$GITHUB_SHA.tgz
