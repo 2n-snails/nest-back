@@ -310,7 +310,8 @@ export class ProductController {
   async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const user = req.user;
     const product = await this.productService.findProductById(param.product_id);
-    if (!product) {
+    console.log(product);
+    if (!product.success) {
       throw new HttpException(
         {
           success: false,
@@ -361,7 +362,7 @@ export class ProductController {
     }
     return { success: true, message: 'Create Wish and Notice Successful' };
   }
-
+  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: '판매자 번호 보내주기',
     description: '판매자 번호를 보내주는 API입니다.',
@@ -381,8 +382,18 @@ export class ProductController {
   @UseGuards(JwtAuthGuard)
   @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
+    const product = await this.productService.findProductById(param.product_id);
+    if (!product.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: product.message,
+        },
+        product.statusCode,
+      );
+    }
     const phone_number = await this.productService.findSellerPhoneNum(
-      param.product_id,
+      product.data.product_no,
     );
     if (!phone_number.success) {
       throw new HttpException(
