@@ -16,6 +16,7 @@ import {
   Delete,
   Get,
   HttpException,
+  HttpStatus,
   InternalServerErrorException,
   Param,
   Post,
@@ -30,6 +31,7 @@ import { CreateReCommentDTO } from './dto/createReComment.dto';
 import { AddressCity } from 'src/entity/address_city.entity';
 import { Category } from 'src/entity/category.entity';
 import { AppService } from 'src/app.service';
+import { GetAddressCategoryDTO } from './dto/address.category.dto';
 
 @ApiTags('product')
 @Controller('product')
@@ -66,24 +68,20 @@ export class ProductController {
     @Body() createdProductDTO: CreatedProductDTO,
     @Req() req,
   ): Promise<any> {
-    try {
-      const user = req.user;
-      const new_product = await this.productService.createProduct(
-        createdProductDTO,
-        user,
-      );
-      if (new_product.success) {
-        return new_product;
-      } else {
-        throw new Error(new_product.message);
-      }
-    } catch (e) {
+    const user = req.user;
+    const new_product = await this.productService.createProduct(
+      createdProductDTO,
+      user,
+    );
+    if (new_product.success) {
+      return new_product;
+    } else {
       throw new HttpException(
         {
           success: false,
-          message: e.message,
+          message: new_product.message,
         },
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -97,16 +95,17 @@ export class ProductController {
     description: '정상 요청',
   })
   @Get('address')
-  async findAllAddress(): Promise<AddressCity[]> {
-    try {
-      return await this.productService.getAllAddress();
-    } catch (e) {
+  async findAllAddress(): Promise<GetAddressCategoryDTO> {
+    const address = await this.productService.getAllAddress();
+    if (address.success) {
+      return address;
+    } else {
       throw new HttpException(
         {
           success: false,
-          message: e.message,
+          message: address.message,
         },
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -120,16 +119,17 @@ export class ProductController {
     description: '정상 요청',
   })
   @Get('category')
-  async findAllCategory(): Promise<Category[]> {
-    try {
-      return await this.productService.getAllCategory();
-    } catch (e) {
+  async findAllCategory(): Promise<GetAddressCategoryDTO> {
+    const category = await this.productService.getAllCategory();
+    if (category.success) {
+      return category;
+    } else {
       throw new HttpException(
         {
           success: false,
-          message: e.message,
+          message: category.message,
         },
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -167,52 +167,65 @@ export class ProductController {
     @Body() createdCommentDTO: CreatedCommentDTO,
     @Param() param: ProductIdParam,
   ) {
-    try {
-      const user = req.user;
-      // 상품 찾기
-      const product = await this.productService.findProductById(
-        param.product_id,
-      );
-      // 댓글 생성
-      const comment = await this.productService.createComment(
-        createdCommentDTO,
-        user,
-        product,
-      );
-      // 알림 생성
-      if (comment.success) {
-        const new_notice = await this.appService.createNotice(
-          user.user_no,
-          product.product_no,
-          'comment',
-        );
-
-        if (new_notice.success) {
-          return {
-            success: true,
-            message: 'Create Comment and Notice Successful',
-          };
-        } else {
-          // 알림생성에서 에러가 나면 댓글을 지워야 하나...
-          throw new Error(new_notice.message);
-        }
-      } else {
-        throw new Error(comment.message);
-      }
-    } catch (e) {
-      switch (e.message) {
-        case 'No Content':
-          throw new HttpException(e.message, 404);
-
+    const user = req.user;
+    const product = await this.productService.findProductById(param.product_id);
+    if (!product.success) {
+      switch (product.message) {
+        case `No Product Number ${param.product_id}`:
+          throw new HttpException(
+            {
+              success: false,
+              message: product.message,
+            },
+            HttpStatus.NOT_FOUND,
+          );
         default:
           throw new HttpException(
             {
               success: false,
-              message: e.message,
+              message: product.message,
             },
-            500,
+            HttpStatus.INTERNAL_SERVER_ERROR,
           );
       }
+    }
+
+    const comment = await this.productService.createComment(
+      createdCommentDTO,
+      user,
+      product.data,
+    );
+
+    if (comment.success) {
+      const new_notice = await this.appService.createNotice(
+        user.user_no,
+        product.data.product_no,
+        'comment',
+      );
+
+      if (new_notice.success) {
+        return {
+          success: true,
+          message: 'Create Comment and Notice Successful',
+        };
+      } else {
+        // 알림생성에서 에러가 나면 댓글을 지우는 로직 추가
+        throw new HttpException(
+          {
+            success: false,
+            message: 'Create Comment and Notice fail',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } else {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Create Comment fail',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

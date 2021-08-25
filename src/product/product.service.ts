@@ -28,6 +28,8 @@ import { CreateProductService } from './query/createProduct.service';
 import { User } from 'src/entity/user.entity';
 import { ReadProductService } from './query/readProduct.service';
 import { AppService } from 'src/app.service';
+import { GetAddressCategoryDTO } from './dto/address.category.dto';
+import { ResProductDTO } from './dto/response.product.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -50,7 +52,7 @@ export class ProductService {
     private readonly appService: AppService,
   ) {}
 
-  async findProductById(product_no: number) {
+  async findProductById(product_no: number): Promise<ResProductDTO> {
     return await this.readProductService.findProductById(product_no);
   }
 
@@ -376,11 +378,11 @@ export class ProductService {
       .getRawMany();
   }
 
-  async getAllAddress(): Promise<AddressCity[]> {
+  async getAllAddress(): Promise<GetAddressCategoryDTO> {
     return await this.readProductService.findAddress();
   }
 
-  async getAllCategory(): Promise<Category[]> {
+  async getAllCategory(): Promise<GetAddressCategoryDTO> {
     return await this.readProductService.findCategory();
   }
 }

@@ -77,7 +77,6 @@ export class CreateProductService {
       result = {
         success: false,
         message: 'Create Product Fail',
-        statusCode: 500,
       };
     } finally {
       await queryRunner.release();
@@ -93,7 +92,7 @@ export class CreateProductService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    let result: { success: boolean; message: string; statusCode: number };
+    let result: { success: boolean; message: string };
     try {
       // 댓글 작성
       const { comment_content } = createdCommentDTO;
@@ -102,12 +101,12 @@ export class CreateProductService {
       comment.user = user;
       await queryRunner.manager.save(comment);
       await queryRunner.commitTransaction();
+      result = { success: true, message: 'Success Create Comment' };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       result = {
         success: false,
         message: 'Create Comment Fali',
-        statusCode: 500,
       };
     } finally {
       await queryRunner.release();
