@@ -7,7 +7,14 @@ import { Product } from 'src/entity/product.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
 import { ReComment } from 'src/entity/recomment.entity';
 import { User } from 'src/entity/user.entity';
-import { Connection, getRepository, Like, Repository } from 'typeorm';
+import { Wish } from 'src/entity/wish.entity';
+import {
+  Connection,
+  getConnection,
+  getRepository,
+  Like,
+  Repository,
+} from 'typeorm';
 import { CreatedCommentDTO } from '../dto/createComment.dto';
 import { CreatedProductDTO } from '../dto/createProduct.dto';
 import { CreateReCommentDTO } from '../dto/createReComment.dto';
@@ -131,6 +138,25 @@ export class CreateProductService {
         message: 'Create Recomment fail',
         statusCode: 500,
       };
+    }
+  }
+
+  async createWish(user: User, product: Product) {
+    try {
+      await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(Wish)
+        .values([
+          {
+            user,
+            product,
+          },
+        ])
+        .execute();
+      return { success: true, message: 'Create Wish Success' };
+    } catch (error) {
+      return { success: false, message: 'Server Error', statusCode: 500 };
     }
   }
 }
