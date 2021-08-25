@@ -326,6 +326,9 @@ export class ProductController {
       product.data.product_no,
     );
     if (!wish.success) {
+      if (wish.message === 'already exist') {
+        return wish;
+      }
       throw new HttpException(
         {
           success: false,
