@@ -116,7 +116,7 @@ export class ReadProductService {
       if (!wish) {
         return { success: true };
       } else {
-        return { success: false, message: 'already exist', statusCode: 403 };
+        return { success: false, message: 'already exist' };
       }
     } catch (error) {
       console.log(error);
