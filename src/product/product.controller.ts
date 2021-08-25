@@ -180,29 +180,7 @@ export class ProductController {
       product.data,
     );
 
-    if (comment.success) {
-      const new_notice = await this.appService.createNotice(
-        user.user_no,
-        product.data.product_no,
-        'comment',
-      );
-
-      if (new_notice.success) {
-        return {
-          success: true,
-          message: 'Create Comment and Notice Successful',
-        };
-      } else {
-        // 알림생성에서 에러가 나면 댓글을 지우는 로직 추가
-        throw new HttpException(
-          {
-            success: false,
-            message: new_notice.message,
-          },
-          new_notice.statusCode,
-        );
-      }
-    } else {
+    if (!comment.success) {
       throw new HttpException(
         {
           success: false,
@@ -211,6 +189,27 @@ export class ProductController {
         comment.statusCode,
       );
     }
+
+    const new_notice = await this.appService.createNotice(
+      user.user_no,
+      product.data.product_no,
+      'comment',
+    );
+
+    if (!new_notice.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: new_notice.message,
+        },
+        new_notice.statusCode,
+      );
+    }
+    // 알림생성에서 에러가 나면 댓글을 지우는 로직 추가
+    return {
+      success: true,
+      message: 'Create Comment and Notice Successful',
+    };
   }
 
   @ApiBearerAuth('access-token')
@@ -241,39 +240,8 @@ export class ProductController {
     const comment = await this.productService.findCommentById(
       createReCommentDto.comment_no,
     );
-    if (comment.success) {
-      const result = await this.productService.createReComment(
-        user,
-        comment.data,
-        createReCommentDto,
-      );
-      if (result.success) {
-        const new_notice = await this.appService.createNotice(
-          user.user_no,
-          param.product_id,
-          'recomment',
-        );
-        if (new_notice.success) {
-          return { success: true, message: 'Success' };
-        } else {
-          throw new HttpException(
-            {
-              success: false,
-              message: new_notice.message,
-            },
-            new_notice.statusCode,
-          );
-        }
-      } else {
-        throw new HttpException(
-          {
-            success: false,
-            message: result.message,
-          },
-          result.statusCode,
-        );
-      }
-    } else {
+
+    if (!comment.success) {
       throw new HttpException(
         {
           success: false,
@@ -282,6 +250,36 @@ export class ProductController {
         comment.statusCode,
       );
     }
+
+    const result = await this.productService.createReComment(
+      user,
+      comment.data,
+      createReCommentDto,
+    );
+    if (!result.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: result.message,
+        },
+        result.statusCode,
+      );
+    }
+    const new_notice = await this.appService.createNotice(
+      user.user_no,
+      param.product_id,
+      'recomment',
+    );
+    if (!new_notice.success) {
+      throw new HttpException(
+        {
+          success: false,
+          message: new_notice.message,
+        },
+        new_notice.statusCode,
+      );
+    }
+    return { success: true, message: 'Success' };
   }
 
   // 신고하기
