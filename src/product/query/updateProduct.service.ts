@@ -22,137 +22,119 @@ export class UpdateProductService {
     const { product_title, product_content, product_price } = updateProdcutDTO;
     const image = updateProdcutDTO.images;
     const productCategories = updateProdcutDTO.productCategories;
-    try {
-      const result = await this.productRepository
+
+    const result = await this.productRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        product_title,
+        product_content,
+        product_price,
+      })
+      .where(`product_no = ${product_no}`)
+      .execute();
+
+    // 상품이미지 조회
+    const productImage = await this.readProductservice.findProductImage(
+      product_no,
+    );
+    // 기존이 사진 데이터 중 새로들어온 사진과 일치하지 않은 사진은 deleted컬럼 값 업데이트
+    const deleteToImage = productImage.filter(
+      (value) => !image.includes(value.image_src),
+    );
+    for (let i = 0; i < deleteToImage.length; i++) {
+      await getConnection()
         .createQueryBuilder()
-        .update()
-        .set({
-          product_title,
-          product_content,
-          product_price,
-        })
-        .where(`product_no = ${product_no}`)
+        .update(Image)
+        .set({ deleted: 'Y' })
+        .where(`image_src = :src`, { src: deleteToImage[i].image_src })
+        .andWhere(`product = ${product_no}`)
         .execute();
-
-      // 상품이미지 조회
-      const productImage = await this.readProductservice.findProductImage(
-        product_no,
+    }
+    // 이미지 테이블 정보 업데이트
+    let imageUpdateResult = true;
+    for (let i = 0; i < image.length; i++) {
+      let query;
+      // 기존의 정보와 새로들어온 정보 중 일치하는 컬럼 값 확인
+      const check = productImage.some(
+        (images) => images.image_src === image[i],
       );
-      if (!productImage.success) {
-        return {
-          success: false,
-          message: productImage.message,
-          statusCode: 500,
-        };
-      }
-
-      // 기존이 사진 데이터 중 새로들어온 사진과 일치하지 않은 사진은 deleted컬럼 값 업데이트
-      const deleteToImage = productImage.data.filter(
-        (value) => !image.includes(value.image_src),
-      );
-      for (let i = 0; i < deleteToImage.length; i++) {
-        await getConnection()
+      // 일치하는 컬럼이 있다면 순서컬럼만 업데이트
+      if (check) {
+        query = getConnection()
           .createQueryBuilder()
           .update(Image)
-          .set({ deleted: 'Y' })
-          .where(`image_src = :src`, { src: deleteToImage[i].image_src })
-          .andWhere(`product = ${product_no}`)
-          .execute();
+          .set({ image_order: i + 1 })
+          .where(`image_src = :src`, { src: image[i] })
+          .andWhere(`product = ${product_no}`);
       }
-
-      // 이미지 테이블 정보 업데이트
-      let imageUpdateResult = true;
-      for (let i = 0; i < image.length; i++) {
-        let query;
-        // 기존의 정보와 새로들어온 정보 중 일치하는 컬럼 값 확인
-        const check = productImage.data.some(
-          (images) => images.image_src === image[i],
-        );
-        // 일치하는 컬럼이 있다면 순서컬럼만 업데이트
-        if (check) {
-          query = getConnection()
-            .createQueryBuilder()
-            .update(Image)
-            .set({ image_order: i + 1 })
-            .where(`image_src = :src`, { src: image[i] })
-            .andWhere(`product = ${product_no}`);
-        }
-        // 일치하는 정보가 없다면 데이터베이스에 추가
-        else {
-          query = getConnection()
-            .createQueryBuilder()
-            .insert()
-            .into(Image)
-            .values([
-              {
-                image_order: i + 1,
-                image_src: image[i],
-                product,
-              },
-            ]);
-        }
-        const result = await query.execute();
-        imageUpdateResult =
-          result.affected > 0 || result.raw.length !== 0
-            ? imageUpdateResult
-            : false;
-      }
-
-      // 카테고리 업데이트
-      const category = await this.readProductservice.findProductCategory(
-        product_no,
-      );
-      if (!category.success) {
-        return { success: false, message: 'update false' };
-      }
-      const deletedCategory = category.data.filter(
-        (value) => !productCategories.includes(value.category_name),
-      );
-      for (let i = 0; i < deletedCategory.length; i++) {
-        await getConnection()
+      // 일치하는 정보가 없다면 데이터베이스에 추가
+      else {
+        query = getConnection()
           .createQueryBuilder()
-          .update(ProductCategory)
-          .set({ deleted: 'Y' })
-          .where(
-            `product_category_no = ${deletedCategory[i].product_category_no}`,
-          )
-          .execute();
+          .insert()
+          .into(Image)
+          .values([
+            {
+              image_order: i + 1,
+              image_src: image[i],
+              product,
+            },
+          ]);
       }
-
-      let categoryUpdateResult = true;
-      for (let i = 0; i < productCategories.length; i++) {
-        // 기존의 정보와 새로들어온 정보 중 일치하는 컬럼 값 확인
-        const check = category.data.some(
-          (categoryes) => categoryes.category_name === productCategories[i],
-        );
-        if (!check) {
-          const category_name = await this.categoryRepository.findOne({
-            category_name: Like(`${productCategories[i]}`),
-          });
-          const result = await getConnection()
-            .createQueryBuilder()
-            .insert()
-            .into(ProductCategory)
-            .values([
-              {
-                product,
-                category: category_name,
-              },
-            ])
-            .execute();
-          categoryUpdateResult =
-            result.raw.length !== 0 ? categoryUpdateResult : false;
-        }
-      }
-      return result.affected > 0 && imageUpdateResult && categoryUpdateResult
-        ? { success: true, message: 'product update successful' }
-        : {
-            success: false,
-            message: 'product update failure',
-            statusCode: 500,
-          };
-    } catch (error) {
-      return { success: false, message: 'Server Error', statusCode: 500 };
+      const result = await query.execute();
+      imageUpdateResult =
+        result.affected > 0 || result.raw.length !== 0
+          ? imageUpdateResult
+          : false;
     }
+
+    // 카테고리 업데이트
+    const category = await this.readProductservice.findProductCategory(
+      product_no,
+    );
+
+    const deletedCategory = category.filter(
+      (value) => !productCategories.includes(value.category_name),
+    );
+    for (let i = 0; i < deletedCategory.length; i++) {
+      await getConnection()
+        .createQueryBuilder()
+        .update(ProductCategory)
+        .set({ deleted: 'Y' })
+        .where(
+          `product_category_no = ${deletedCategory[i].product_category_no}`,
+        )
+        .execute();
+    }
+
+    let categoryUpdateResult = true;
+    for (let i = 0; i < productCategories.length; i++) {
+      // 기존의 정보와 새로들어온 정보 중 일치하는 컬럼 값 확인
+      const check = category.some(
+        (categoryes) => categoryes.category_name === productCategories[i],
+      );
+      if (!check) {
+        const category_name = await this.categoryRepository.findOne({
+          category_name: Like(`${productCategories[i]}`),
+        });
+        const result = await getConnection()
+          .createQueryBuilder()
+          .insert()
+          .into(ProductCategory)
+          .values([
+            {
+              product,
+              category: category_name,
+            },
+          ])
+          .execute();
+        categoryUpdateResult =
+          result.raw.length !== 0 ? categoryUpdateResult : false;
+      }
+    }
+    return result.affected > 0 && imageUpdateResult && categoryUpdateResult
+      ? true
+      : false;
   }
 }

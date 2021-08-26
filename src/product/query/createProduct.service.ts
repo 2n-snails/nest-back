@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entity/category.entity';
 import { Comment } from 'src/entity/comment.entity';
@@ -40,7 +40,7 @@ export class CreateProductService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    let result: { success: boolean; message: string; statusCode?: number };
+    let result: boolean;
     try {
       // 상품 업로드
       const { product_title, product_content, product_price } =
@@ -75,13 +75,10 @@ export class CreateProductService {
         await queryRunner.manager.save(newProductCategory);
       }
       await queryRunner.commitTransaction();
-      result = { success: true, message: 'Product Upload Successful' };
+      result = true;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      result = {
-        success: false,
-        message: 'Create Product Fail',
-      };
+      result = false;
     } finally {
       await queryRunner.release();
       return result;
@@ -93,25 +90,17 @@ export class CreateProductService {
     user: User,
     product: Product,
   ) {
-    try {
-      const { comment_content } = createdCommentDTO;
-      await getRepository(Comment)
-        .createQueryBuilder()
-        .insert()
-        .values({
-          comment_content,
-          user,
-          product,
-        })
-        .execute();
-      return { success: true, message: 'Success Create Comment' };
-    } catch (error) {
-      return {
-        success: false,
-        message: 'Create Comment Fali',
-        statusCode: 500,
-      };
-    }
+    const { comment_content } = createdCommentDTO;
+    await getRepository(Comment)
+      .createQueryBuilder()
+      .insert()
+      .values({
+        comment_content,
+        user,
+        product,
+      })
+      .execute();
+    return true;
   }
 
   async createRecomment(
@@ -119,44 +108,31 @@ export class CreateProductService {
     comment: Comment,
     createReCommentDto: CreateReCommentDTO,
   ) {
-    try {
-      // 대댓글 작성
-      const { recomment_content } = createReCommentDto;
-      await getRepository(ReComment)
-        .createQueryBuilder()
-        .insert()
-        .values({
-          recomment_content,
-          comment,
-          user,
-        })
-        .execute();
-      return { success: true, message: 'Success Create Recomment' };
-    } catch (error) {
-      return {
-        success: false,
-        message: 'Create Recomment fail',
-        statusCode: 500,
-      };
-    }
+    const { recomment_content } = createReCommentDto;
+    await getRepository(ReComment)
+      .createQueryBuilder()
+      .insert()
+      .values({
+        recomment_content,
+        comment,
+        user,
+      })
+      .execute();
+    return true;
   }
 
   async createWish(user: User, product: Product) {
-    try {
-      await getConnection()
-        .createQueryBuilder()
-        .insert()
-        .into(Wish)
-        .values([
-          {
-            user,
-            product,
-          },
-        ])
-        .execute();
-      return { success: true, message: 'Create Wish Success' };
-    } catch (error) {
-      return { success: false, message: 'Server Error', statusCode: 500 };
-    }
+    await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(Wish)
+      .values([
+        {
+          user,
+          product,
+        },
+      ])
+      .execute();
+    return true;
   }
 }
