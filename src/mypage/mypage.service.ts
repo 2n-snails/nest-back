@@ -40,6 +40,8 @@ export class MypageService {
       .leftJoinAndSelect('addressArea.addressCity', 'addressCity')
       .select([
         'u.user_no',
+        'u.user_nick',
+        'u.user_intro',
         'wish.wish_no',
         'p.product_no',
         'p.product_title',
@@ -79,14 +81,6 @@ export class MypageService {
       .andWhere(`wish.deleted = 'N'`)
       .getMany();
     return result;
-    // 쿼리 분리 후 결과가 있다면
-    // if (result) {
-    //   return result;
-    // }
-    // 결과가 없다면
-    // return {
-    //   'no result'
-    // }
   }
 
   // 유저의 판매중인 상품

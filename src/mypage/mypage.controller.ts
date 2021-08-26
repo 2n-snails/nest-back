@@ -47,21 +47,10 @@ export class MypageController {
     status: 400,
     description: 'Parameter type error',
   })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'Token authentication error',
-  })
-  @UseGuards(JwtAuthGuard)
   @Get('my_wish/:user_id')
   async wishList(@Req() req, @Param() param: UserIdParam): Promise<User[]> {
-    const tokenId = req.user.user_no;
-    const paramId = param.user_id;
-    const checkId = this.usersService.checkTokenAndParam(tokenId, paramId);
-    if (checkId) {
-      const result = await this.mypageService.findUserWish(tokenId);
-      return result;
-    }
-    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    const result = await this.mypageService.findUserWish(param.user_id);
+    return result;
   }
 
   // 유저의 판매중인 상품
