@@ -143,6 +143,8 @@ export class MypageService {
       .where(`u.user_no = ${user_id}`)
       .select([
         'u.user_no',
+        'u.user_nick',
+        'u.user_intro',
         'review.review_image',
         'review.review_content',
         'review.review_score',
