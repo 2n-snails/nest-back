@@ -65,20 +65,14 @@ export class ProductController {
     @Req() req,
   ): Promise<any> {
     const user = req.user;
-    const new_product = await this.productService.createProduct(
+    const product_upload = await this.productService.createProduct(
       createdProductDTO,
       user,
     );
-    if (new_product.success) {
-      return new_product;
+    if (product_upload) {
+      return { success: true, message: 'upload product successful' };
     } else {
-      throw new HttpException(
-        {
-          success: false,
-          message: new_product.message,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return { success: false, message: 'upload product failed' };
     }
   }
 
@@ -87,23 +81,15 @@ export class ProductController {
     description: '거래 지역을 가져오는 API입니다.',
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '정상 요청',
   })
   @Get('address')
   async findAllAddress(): Promise<any> {
     const address = await this.productService.getAllAddress();
-    if (address.success) {
-      return address;
-    } else {
-      throw new HttpException(
-        {
-          success: false,
-          message: address.message,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return address.length !== 0
+      ? { success: true, data: address }
+      : { success: false, data: address };
   }
 
   @ApiOperation({
@@ -111,23 +97,15 @@ export class ProductController {
     description: '카테고리를 가져오는 API입니다.',
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '정상 요청',
   })
   @Get('category')
   async findAllCategory(): Promise<any> {
     const category = await this.productService.getAllCategory();
-    if (category.success) {
-      return category;
-    } else {
-      throw new HttpException(
-        {
-          success: false,
-          message: category.message,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return category.length !== 0
+      ? { success: true, data: category }
+      : { success: false, data: category };
   }
 
   @ApiOperation({
@@ -165,47 +143,22 @@ export class ProductController {
   ) {
     const user = req.user;
     const product = await this.productService.findProductById(param.product_id);
-    if (!product.success) {
+    if (!product) {
       throw new HttpException(
         {
-          success: false,
-          message: product.message,
+          status: HttpStatus.NOT_FOUND,
+          message: `no product number ${param.product_id}`,
         },
-        product.statusCode,
+        HttpStatus.NOT_FOUND,
       );
     }
-    const comment = await this.productService.createComment(
-      createdCommentDTO,
-      user,
-      product.data,
-    );
+    await this.productService.createComment(createdCommentDTO, user, product);
 
-    if (!comment.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: 'Create Comment fail',
-        },
-        comment.statusCode,
-      );
-    }
-
-    const new_notice = await this.appService.createNotice(
+    await this.appService.createNotice(
       user.user_no,
-      product.data.product_no,
+      product.product_no,
       'comment',
     );
-
-    if (!new_notice.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: new_notice.message,
-        },
-        new_notice.statusCode,
-      );
-    }
-    // 알림생성에서 에러가 나면 댓글을 지우는 로직 추가
     return {
       success: true,
       message: 'Create Comment and Notice Successful',
@@ -237,17 +190,25 @@ export class ProductController {
     @Param() param: ProductIdParam,
   ) {
     const user = req.user;
-    const comment = await this.productService.findCommentById(
-      createReCommentDto.comment_no,
-    );
-
+    const { comment_no } = createReCommentDto;
+    const comment = await this.productService.findCommentById(comment_no);
     if (!comment.success) {
       throw new HttpException(
         {
-          success: false,
-          message: comment.message,
+          status: HttpStatus.NOT_FOUND,
+          message: `No Comment number ${comment_no}.`,
         },
-        comment.statusCode,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const product = await this.productService.findProductById(param.product_id);
+    if (!product) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: `no product number ${param.product_id}`,
+        },
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -256,30 +217,14 @@ export class ProductController {
       comment.data,
       createReCommentDto,
     );
-    if (!result.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: result.message,
-        },
-        result.statusCode,
+    if (result) {
+      await this.appService.createNotice(
+        user.user_no,
+        param.product_id,
+        'recomment',
       );
+      return { success: true, message: 'create recomment successful' };
     }
-    const new_notice = await this.appService.createNotice(
-      user.user_no,
-      param.product_id,
-      'recomment',
-    );
-    if (!new_notice.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: new_notice.message,
-        },
-        new_notice.statusCode,
-      );
-    }
-    return { success: true, message: 'Success' };
   }
 
   // 신고하기
@@ -310,57 +255,31 @@ export class ProductController {
   async wishProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const user = req.user;
     const product = await this.productService.findProductById(param.product_id);
-    console.log(product);
-    if (!product.success) {
+    if (!product) {
       throw new HttpException(
         {
-          success: false,
-          message: product.message,
+          status: HttpStatus.NOT_FOUND,
+          message: `No product number ${param.product_id}`,
         },
-        product.statusCode,
+        HttpStatus.NOT_FOUND,
       );
     }
     const wish = await this.productService.findWishById(
       user.user_no,
-      product.data.product_no,
+      product.product_no,
     );
-    if (!wish.success) {
-      if (wish.message === 'already exist') {
-        return wish;
-      }
-      throw new HttpException(
-        {
-          success: false,
-          message: wish.message,
-        },
-        wish.statusCode,
-      );
+    if (wish) {
+      return { success: false, message: 'already added' };
     }
-    const new_wish = await this.productService.createWish(user, product.data);
-    if (!new_wish.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: new_wish.message,
-        },
-        new_wish.statusCode,
+    const new_wish = await this.productService.createWish(user, product);
+    if (new_wish) {
+      await this.appService.createNotice(
+        user.user_no,
+        param.product_id,
+        'wish',
       );
+      return { success: true, message: 'create wish successful' };
     }
-    const new_notice = await this.appService.createNotice(
-      user.user_no,
-      product.data.product_no,
-      'wish',
-    );
-    if (!new_notice.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: new_notice.message,
-        },
-        new_notice.statusCode,
-      );
-    }
-    return { success: true, message: 'Create Wish and Notice Successful' };
   }
   @ApiBearerAuth('access-token')
   @ApiOperation({
@@ -383,28 +302,22 @@ export class ProductController {
   @Get(':product_id/seller_num')
   async sendPhoneNumber(@Param() param: ProductIdParam) {
     const product = await this.productService.findProductById(param.product_id);
-    if (!product.success) {
+    if (!product) {
       throw new HttpException(
         {
-          success: false,
-          message: product.message,
+          status: HttpStatus.NOT_FOUND,
+          message: `No product number ${param.product_id}`,
         },
-        product.statusCode,
+        HttpStatus.NOT_FOUND,
       );
     }
     const phone_number = await this.productService.findSellerPhoneNum(
-      product.data.product_no,
+      product.product_no,
     );
-    if (!phone_number.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: phone_number.message,
-        },
-        phone_number.statusCode,
-      );
+    if (!phone_number) {
+      return { success: true, data: phone_number, message: 'no phone number' };
     }
-    return phone_number;
+    return { success: true, data: phone_number };
   }
 
   @ApiBearerAuth('access-token')
@@ -432,20 +345,20 @@ export class ProductController {
     @Param() param: ProductIdParam,
   ) {
     const { user_no } = req.user;
-    const result = await this.productService.findUserByProduct(
+    const product = await this.productService.findUserByProduct(
       param.product_id,
     );
-    if (!result.success) {
+    if (!product) {
       throw new HttpException(
         {
-          success: false,
-          message: result.message,
+          status: HttpStatus.NOT_FOUND,
+          message: `No product number ${param.product_id}`,
         },
-        result.statusCode,
+        HttpStatus.NOT_FOUND,
       );
     }
 
-    if (result.data.user_no !== user_no) {
+    if (product.user_no !== user_no) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     const productUpdate = await this.productService.updateProduct(
@@ -453,16 +366,11 @@ export class ProductController {
       param.product_id,
     );
 
-    if (!productUpdate.success) {
-      throw new HttpException(
-        {
-          success: false,
-          message: productUpdate.message,
-        },
-        productUpdate.statusCode,
-      );
+    if (productUpdate) {
+      return { success: true, message: 'product update successful' };
+    } else {
+      return { success: false, message: 'product update failed' };
     }
-    return productUpdate;
   }
 
   @ApiOperation({
@@ -478,8 +386,13 @@ export class ProductController {
     description: '잘못된 정보 요청',
   })
   @Get(':product_id')
-  productInfo(@Param() param: ProductIdParam) {
-    return this.productService.findOne(param.product_id);
+  async productInfo(@Param() param: ProductIdParam) {
+    const product = await this.productService.findOne(param.product_id);
+    if (product.length === 0) {
+      return { success: true, message: 'No product', data: product };
+    } else {
+      return { success: true, data: product };
+    }
   }
 
   @ApiBearerAuth('access-token')
@@ -503,27 +416,36 @@ export class ProductController {
   @Delete(':product_id')
   async deleteProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const { user_no } = req.user;
-    const product = await this.productService.findProductById(param.product_id);
-    if (product) {
-      const isSuccess = await this.productService.deleteProduct(
-        user_no,
-        param.product_id,
+    const product = await this.productService.findUserByProduct(
+      param.product_id,
+    );
+    if (!product) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: `No product number ${param.product_id}`,
+        },
+        HttpStatus.NOT_FOUND,
       );
-      if (isSuccess.affected === 0) {
-        return {
-          message: 'no result',
-          success: false,
-        };
-      }
+    }
+    if (user_no !== product.user_no) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const delete_product = await this.productService.deleteProduct(
+      user_no,
+      param.product_id,
+    );
+    if (delete_product.affected === 0) {
       return {
-        message: 'product delete successful',
+        success: false,
+        message: 'product delete failed',
+      };
+    } else {
+      return {
         success: true,
+        message: 'product delete successful',
       };
     }
-    return {
-      message: 'no product',
-      success: false,
-    };
   }
 
   @ApiBearerAuth('access-token')
@@ -548,27 +470,32 @@ export class ProductController {
   async wishCancleProduct(@Req() req: any, @Param() param: ProductIdParam) {
     const { user_no } = req.user;
     const product = await this.productService.findProductById(param.product_id);
+
     if (!product) {
-      return {
-        message: 'no product',
-        success: false,
-      };
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: `No product number ${param.product_id}`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
+
     const user = await this.productService.findWishById(
       user_no,
       param.product_id,
     );
-    // 유저가 있다면
-    if (user) {
-      this.productService.deleteWish(user_no, param.product_id);
+
+    if (!user) {
       return {
-        message: 'wish successful',
         success: true,
+        message: 'no on the wish list',
       };
     }
-    // 찜한게 없다면
+
+    await this.productService.deleteWish(user_no, param.product_id);
     return {
-      message: 'no wish',
+      message: 'wish successful',
       success: true,
     };
   }

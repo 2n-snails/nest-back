@@ -14,6 +14,7 @@ import { UsersModule } from 'src/users/users.module';
 import { CreateProductService } from './query/createProduct.service';
 import { ReadProductService } from './query/readProduct.service';
 import { UpdateProductService } from './query/updateProduct.service';
+import { DeleteProductService } from './query/deleteProduct.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UpdateProductService } from './query/updateProduct.service';
     CreateProductService,
     ReadProductService,
     UpdateProductService,
+    DeleteProductService,
   ],
   controllers: [ProductController],
   exports: [ProductService, ReadProductService],

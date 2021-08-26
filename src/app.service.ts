@@ -18,20 +18,12 @@ export class AppService {
     notice_type: string,
   ) {
     const reciver = await this.readProductService.findUserbyProduct(product_no);
-    if (reciver.success) {
-      return await this.createService.createNotice(
-        writer_no,
-        product_no,
-        notice_type,
-        reciver,
-      );
-    } else {
-      return {
-        success: false,
-        message: reciver.message,
-        statusCode: reciver.statusCode,
-      };
-    }
+    return await this.createService.createNotice(
+      writer_no,
+      product_no,
+      notice_type,
+      reciver,
+    );
   }
 
   async productSearch(searchProductDTO: SearchProductDTO) {
