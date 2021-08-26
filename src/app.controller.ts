@@ -1,6 +1,15 @@
 import { SearchProductDTO } from './dto/searchProduct.dto';
 import { FindMainPageDataDTO } from './dto/findMainPageData.dto';
-import { Body, Controller, Get, Req, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Req,
+  Post,
+  Query,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -36,5 +45,10 @@ export class AppController {
   @Post('search')
   async searchProduct(@Req() req, @Body() searchProductDTO: SearchProductDTO) {
     return this.appService.productSearch(searchProductDTO);
+  }
+
+  @Get('test')
+  hiTest() {
+    throw new HttpException('hi', HttpStatus.I_AM_A_TEAPOT);
   }
 }
