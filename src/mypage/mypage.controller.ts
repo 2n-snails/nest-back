@@ -38,7 +38,6 @@ export class MypageController {
     private readonly usersService: UsersService,
   ) {}
   // 유저의 찜 목록
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: `User's wish list`,
     description: `Get the user's wish list`,
@@ -54,7 +53,6 @@ export class MypageController {
   }
 
   // 유저의 판매중인 상품
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: `User's products on sale list`,
     description: `Get a list of products for sali by uesr's`,
@@ -77,10 +75,6 @@ export class MypageController {
   @ApiBadRequestResponse({
     status: 400,
     description: 'Parameter type error',
-  })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'Token authentication error',
   })
   @Get('my_review/:user_id')
   async reviewList(@Req() req, @Param() param: UserIdParam): Promise<User[]> {
