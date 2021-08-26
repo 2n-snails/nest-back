@@ -74,11 +74,6 @@ export class MypageController {
     status: 400,
     description: 'Parameter type error',
   })
-  @ApiUnauthorizedResponse({
-    status: 401,
-    description: 'Token authentication error',
-  })
-  @UseGuards(JwtAuthGuard)
   @Get('my_product/:user_id')
   async productList(@Req() req, @Param() param: UserIdParam): Promise<User[]> {
     const result = await this.mypageService.findUserProduct(param.user_id);
