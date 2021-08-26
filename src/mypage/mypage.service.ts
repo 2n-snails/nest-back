@@ -104,6 +104,7 @@ export class MypageService {
       .select([
         'u.user_no',
         'u.user_nick',
+        'u.user_intro',
         'p.product_no',
         'p.product_title',
         'p.product_content',
