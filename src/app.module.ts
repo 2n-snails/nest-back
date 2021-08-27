@@ -28,6 +28,7 @@ import { ReComment } from './entity/recomment.entity';
 import { Review } from './entity/review.entity';
 import { Wish } from './entity/wish.entity';
 import { RavenModule, RavenInterceptor } from 'nest-raven';
+import { CreateAppService } from './query/create.service';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { RavenModule, RavenInterceptor } from 'nest-raven';
       useValue: new RavenInterceptor(),
     },
     AppService,
+    CreateAppService,
   ],
   exports: [AppService],
 })

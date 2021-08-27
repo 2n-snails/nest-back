@@ -1,30 +1,30 @@
 import { SearchProductDTO } from './dto/searchProduct.dto';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { getConnection, getRepository } from 'typeorm';
 import { Notice } from './entity/notice.entity';
 import { Product } from './entity/product.entity';
 import { ProductService } from './product/product.service';
+import { CreateAppService } from './query/create.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly productService: ProductService) {}
-  async createNotice(writer_no, product_no, notice_type) {
+  constructor(
+    @Inject(forwardRef(() => ProductService))
+    private readonly productService: ProductService,
+    private readonly createService: CreateAppService,
+  ) {}
+  async createNotice(
+    writer_no: number,
+    product_no: number,
+    notice_type: string,
+  ) {
     const reciver = await this.productService.findUserByProduct(product_no);
-    console.log(reciver);
-    console.log(writer_no);
-    await getConnection()
-      .createQueryBuilder()
-      .insert()
-      .into(Notice)
-      .values([
-        {
-          notice_type,
-          notice_target_no: product_no,
-          writer: writer_no,
-          receiver: reciver.user_no,
-        },
-      ])
-      .execute();
+    return await this.createService.createNotice(
+      writer_no,
+      product_no,
+      notice_type,
+      reciver,
+    );
   }
 
   async productSearch(searchProductDTO: SearchProductDTO) {

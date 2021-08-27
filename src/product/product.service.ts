@@ -1,7 +1,12 @@
 import { AddressCity } from './../entity/address_city.entity';
 import { UpdateProdcutDTO } from './dto/updateProduct.dto';
 import { CreatedCommentDTO } from './dto/createComment.dto';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatedProductDTO } from './dto/createProduct.dto';
 import {
@@ -19,6 +24,10 @@ import { Category } from 'src/entity/category.entity';
 import { Image } from 'src/entity/image.entity';
 import { ProductCategory } from 'src/entity/product_category.entity';
 import { CreateReCommentDTO } from './dto/createReComment.dto';
+import { CreateProductService } from './query/createProduct.service';
+import { User } from 'src/entity/user.entity';
+import { ReadProductService } from './query/readProduct.service';
+import { AppService } from 'src/app.service';
 @Injectable()
 export class ProductService {
   constructor(
@@ -35,68 +44,24 @@ export class ProductService {
     @InjectRepository(ReComment)
     private readonly reCommentRepository: Repository<ReComment>,
     private readonly connection: Connection,
+    private readonly createProductService: CreateProductService,
+    private readonly readProductService: ReadProductService,
+    @Inject(forwardRef(() => AppService))
+    private readonly appService: AppService,
   ) {}
 
   async findProductById(product_no: number) {
-    return await this.productRepository.findOne({
-      where: {
-        product_no: product_no,
-        deleted: 'N',
-      },
-    });
+    return await this.readProductService.findProductById(product_no);
   }
 
   async createProduct(
     createdProductDTO: CreatedProductDTO,
-    user,
-  ): Promise<boolean> {
-    let result = true;
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // 상품 업로드
-      const { product_title, product_content, product_price } =
-        createdProductDTO;
-      const product = await this.productRepository.create({
-        product_title,
-        product_content,
-        product_price,
-      });
-      product.user = user;
-      await queryRunner.manager.save(product);
-
-      // 상품 이미지 업로드
-      for (let i = 0; i < createdProductDTO.images.length; i++) {
-        const image = await this.imageRepository.create({
-          image_src: createdProductDTO.images[i],
-          image_order: i + 1,
-        });
-        image.product = product;
-        await queryRunner.manager.save(image);
-      }
-
-      // 상품 카테고리 업로드
-      for (let i = 0; i < createdProductDTO.productCategories.length; i++) {
-        const category = await this.categoryRepository.findOne({
-          category_name: Like(`${createdProductDTO.productCategories[i]}`),
-        });
-        const newProductCategory = await this.productCategoryRepository.create({
-          product,
-          category,
-        });
-        await queryRunner.manager.save(newProductCategory);
-      }
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      console.log('트랜잭션 실행중 실패로 롤백 진행');
-      await queryRunner.rollbackTransaction();
-      result = false;
-    } finally {
-      await queryRunner.release();
-      return result;
-    }
+    user: User,
+  ): Promise<any> {
+    return await this.createProductService.createProduct(
+      createdProductDTO,
+      user,
+    );
   }
 
   async findOne(product_no: number) {
@@ -169,30 +134,26 @@ export class ProductService {
     });
   }
 
-  async createComment(user, createdCommentDTO: CreatedCommentDTO, product) {
-    let result = true;
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async createComment(
+    createdCommentDTO: CreatedCommentDTO,
+    user: User,
+    product_no: number,
+  ) {
+    const target_product = await this.findProductById(product_no);
 
-    try {
-      // 댓글 작성
-      const { comment_content } = createdCommentDTO;
-      const comment = await this.commentRepository.create({ comment_content });
-      comment.product = product;
-      comment.user = user;
-      await queryRunner.manager.save(comment);
+    const new_comment = await this.createProductService.createComment(
+      createdCommentDTO,
+      user,
+      target_product,
+    );
 
-      await queryRunner.commitTransaction();
-      // 댓글 작성 후 상품의 판매자에게 알림을 생성해줘야함.
-    } catch (error) {
-      console.log('트랜잭션 실행중 실패로 롤백 진행');
-      await queryRunner.rollbackTransaction();
-      result = false;
-    } finally {
-      await queryRunner.release();
-      return result;
-    }
+    const new_notice = await this.appService.createNotice(
+      user.user_no,
+      product_no,
+      'comment',
+    );
+
+    return { success: true, message: 'Write Comment Successful' };
   }
 
   async createReComment(
@@ -426,19 +387,10 @@ export class ProductService {
   }
 
   async getAllAddress(): Promise<AddressCity[]> {
-    const result = await getRepository(AddressCity)
-      .createQueryBuilder('city')
-      .leftJoinAndSelect('city.addressAreas', 'area')
-      .select(['city.city_name', 'area.area_name'])
-      .getMany();
-    return result;
+    return await this.readProductService.findAddress();
   }
 
   async getAllCategory(): Promise<Category[]> {
-    const result = await getRepository(Category)
-      .createQueryBuilder('category')
-      .select(['category.category_name'])
-      .getMany();
-    return result;
+    return await this.readProductService.findCategory();
   }
 }
