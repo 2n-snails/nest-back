@@ -7,7 +7,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Chat } from './chat.entity';
 import { Comment } from './comment.entity';
+import { Deal } from './deal.entity';
 import { Image } from './image.entity';
 import { ProductCategory } from './product_category.entity';
 import { User } from './user.entity';
@@ -29,9 +31,6 @@ export class Product {
 
   @Column({ type: 'integer', default: 0 })
   product_view: number;
-
-  @Column({ type: 'boolean', default: false })
-  product_state: boolean;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
@@ -61,4 +60,10 @@ export class Product {
   @ManyToOne(() => User, (user) => user.products)
   @JoinColumn({ name: 'product_user_no' })
   user: User;
+
+  @OneToMany(() => Deal, (deal) => deal.product)
+  deals: Deal[];
+
+  @OneToMany(() => Chat, (chat) => chat.product)
+  chat: Chat[];
 }

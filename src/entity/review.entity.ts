@@ -16,9 +16,6 @@ export class Review {
   @Column({ type: 'varchar', length: 100 })
   review_content: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'none' })
-  review_image: string;
-
   @Column({ type: 'integer' })
   review_score: number;
 

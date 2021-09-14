@@ -7,7 +7,10 @@ export class Category {
   category_no: number;
 
   @Column({ type: 'varchar', length: 20 })
-  category_name: string;
+  category_parent_name: string;
+
+  @Column({ type: 'varchar', length: 20 })
+  category_sub_name: string;
 
   @Column({
     type: 'varchar',

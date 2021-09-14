@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AddressArea } from './address_area.entity';
-import { User } from './user.entity';
+import { Product } from './product.entity';
 
 @Entity()
 export class Deal {
@@ -24,7 +24,7 @@ export class Deal {
   @JoinColumn({ name: 'deal_area_no' })
   addressArea: AddressArea;
 
-  @ManyToOne(() => User, (user) => user.deals)
-  @JoinColumn({ name: 'deal_user_no' })
-  user: User;
+  @ManyToOne(() => Product, (product) => product.deals)
+  @JoinColumn({ name: 'product_no' })
+  product: Product;
 }

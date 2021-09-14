@@ -1,33 +1,25 @@
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { ProductCategory } from './entity/product_category.entity';
-import { AddressCity } from 'src/entity/address_city.entity';
-import { AddressArea } from './entity/address_area.entity';
-import { User } from './entity/user.entity';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import {
-  forwardRef,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-} from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductModule } from './product/product.module';
-import { UsersModule } from './users/users.module';
-import { MypageModule } from './mypage/mypage.module';
-import { AuthModule } from './auth/auth.module';
+import { RavenModule, RavenInterceptor } from 'nest-raven';
+import { AddressCity } from './entity/address_city.entity';
+import { AddressArea } from './entity/address_area.entity';
 import { Category } from './entity/category.entity';
 import { Comment } from './entity/comment.entity';
+import { Chat } from './entity/chat.entity';
 import { Deal } from './entity/deal.entity';
 import { Image } from './entity/image.entity';
-import { Notice } from './entity/notice.entity';
 import { Product } from './entity/product.entity';
+import { ProductCategory } from './entity/product_category.entity';
 import { ReComment } from './entity/recomment.entity';
 import { Review } from './entity/review.entity';
+import { State } from './entity/state.entity';
+import { User } from './entity/user.entity';
 import { Wish } from './entity/wish.entity';
-import { RavenModule, RavenInterceptor } from 'nest-raven';
 
 @Module({
   imports: [
@@ -52,29 +44,26 @@ import { RavenModule, RavenInterceptor } from 'nest-raven';
       migrations: [__dirname + '/src/migrations/*.ts'],
       cli: { migrationsDir: 'src/migrations' },
       autoLoadEntities: true,
-      synchronize: false,
+      synchronize: true,
       logging: true,
       keepConnectionAlive: true,
     }),
     TypeOrmModule.forFeature([
-      AddressArea,
       AddressCity,
-      User,
-      Deal,
-      Notice,
+      AddressArea,
       Category,
-      Product,
-      Image,
-      ProductCategory,
-      Wish,
       Comment,
+      Chat,
+      Deal,
+      Image,
+      Product,
+      ProductCategory,
       ReComment,
       Review,
+      State,
+      User,
+      Wish,
     ]),
-    forwardRef(() => ProductModule),
-    UsersModule,
-    MypageModule,
-    AuthModule,
     RavenModule,
   ],
   controllers: [AppController],
